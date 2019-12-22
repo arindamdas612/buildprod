@@ -1,0 +1,75 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <section class="no-padding-top">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="block text-center">
+                        <a href="{% url 'roll_activites' %}" class="btn btn-primary btn-block">
+                            <i class="fa fa-circle"></i>
+                            <strong>Rolls</strong>
+                        </a>
+                    </div> 
+                </div>
+                <div class="col-lg-6">
+                    <div class="block text-cnter">
+                        <a href="{% url 'bag_activites' %}" class="btn btn-success btn-block">
+                            <i class="fa fa-shopping-bag"></i>
+                                <strong>Bags</strong>
+                        </a>
+                    </div> 
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-4"></div>
+                <div class="col-lg-4">                           
+                    <div class="block">
+                        {% if wastes %}
+                            <div class="table-responsive"> 
+                                <table class="table table-striped table-hover" id="rolls">
+                                    <thead>
+                                        <tr>
+                                            <th>Color</th>
+                                            <th>Weight Kg</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for waste in wastes %}
+                                            <tr>
+                                                <td><i class="fa fa-recycle" style="color:{{waste.bag.roll.color}}"></i> | {{waste.bag.roll.color}}</td>
+                                                <td>{{waste.weight|floatformat:2}}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <hr>
+                            <!--Pagination-->
+                            <div class="pagination text-center">
+                                <span class="step-links">
+                                    {% if wastes.has_previous %}
+                                        <a href="?page=1" class="btn btn-primary">&laquo; first</a>
+                                        <a href="?page={{ wastes.previous_page_number }}" class="btn btn-primary">previous</a>
+                                    {% endif %}
+                                    
+                                    <span class="current">
+                                        Page {{ wastes.number }} of {{ wastes.paginator.num_pages }}.
+                                    </span>
+                            
+                                    {% if wastes.has_next %}
+                                        <a href="?page={{ wastes.next_page_number }}" class="btn btn-primary">next</a>
+                                        <a href="?page={{ wastes.paginator.num_pages }}" class="btn btn-primary">last &raquo;</a>
+                                    {% endif %}
+                                </span>
+                            </div>
+                        {% else %}
+                            <p>Waste Data not available!!</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}

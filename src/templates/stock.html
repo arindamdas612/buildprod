@@ -1,0 +1,77 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <section class="no-padding-top">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-1"></div>
+                <div class="col-lg-10">                           
+                    <div class="block">
+                        <div class="title"><strong>Stock Rolls</strong></div>
+                        {% if msg %}
+                            <div class="alert alert-success" role="alert">
+                                {{ msg }}
+                            </div>
+                        {% endif %}
+                        <div class="block-body">
+                            <form method="POST" action="{% url 'roll_stock' %}">
+                                {%csrf_token%}
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="from-group">
+                                            {{form.seller}}
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="from-group">
+                                            {{form.roll_type}}
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-lg-4">
+                                        <div class="from-group">
+                                            {{form.color}}
+                                            <a  href="{% url 'color-guide' %}" 
+                                                target="blank" 
+                                                class="btn btn-sm btn-secondary float-right"
+                                                style="border-radius: 0; color: black;">
+                                                Color Guide
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <div class="from-group">
+                                            {{form.gsm}}
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <div class="from-group">
+                                            {{form.width}}
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <div class="from-group">
+                                            {{form.weight}}
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <div class="from-group">
+                                            {{form.unit}}
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="form-group">
+                                    <button type="submit" value="Stock" class='btn btn-primary btn-block'>Stock</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-1"></div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

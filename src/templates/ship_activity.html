@@ -1,0 +1,68 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <section class="no-padding-top">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12">                           
+                    <div class="block">
+                        {% if shipments %}
+                            <div class="table-responsive"> 
+                                <table class="table table-striped table-hover" id="rolls">
+                                    <thead>
+                                        <tr>
+                                            <th>Distributor</th>
+                                            <th>GSM</th>
+                                            <th>Color</th>
+                                            <th>Width</th>
+                                            <th>Height</th>
+                                            <th>Weigth</th>
+                                            <th>Assinged By</th>
+                                            <th>Date Shipped</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for shipment in shipments %}
+                                            <tr>
+                                                <td>{{shipment.distributor.name}}</td>
+                                                <td>{{shipment.bag.roll.gsm}}</td>
+                                                <td><i class="fa fa-shopping-bag" style="color:{{shipment.bag.roll.color}}"></i> | {{shipment.bag.roll.color}}</td>
+                                                <td>{{shipment.bag.width}} {{shipment.bag.width_unit}}</td>
+                                                <td>{{shipment.bag.height}} {{shipment.bag.height_unit}}</td>
+                                                <td>{{shipment.bag.weight}} {{shipment.bag.weight_unit}}</td>
+                                                <td>{{shipment.assigned_by.get_full_name}}</td>
+                                                <td>{{shipment.assingment_timestamp}}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <hr>
+                            <!--Pagination-->
+                            <div class="pagination text-center">
+                                <span class="step-links">
+                                    {% if shipments.has_previous %}
+                                        <a href="?page=1" class="btn btn-primary">&laquo; first</a>
+                                        <a href="?page={{ shipments.previous_page_number }}" class="btn btn-primary">previous</a>
+                                    {% endif %}
+                                    
+                                    <span class="current">
+                                        Page {{ shipments.number }} of {{ shipments.paginator.num_pages }}.
+                                    </span>
+                            
+                                    {% if shipments.has_next %}
+                                        <a href="?page={{ shipments.next_page_number }}" class="btn btn-primary">next</a>
+                                        <a href="?page={{ shipments.paginator.num_pages }}" class="btn btn-primary">last &raquo;</a>
+                                    {% endif %}
+                                </span>
+                            </div>
+                        {% else %}
+                            <p>Shipment Data not available!!</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}

@@ -1,0 +1,164 @@
+{% extends "layout.html" %}
+{% load static %}
+{% block content %}
+<section class="no-padding-top">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="block">
+                    <div class="title"><strong>Avatar</strong></div>
+                    <div class="block-body text-center">
+                        <img src="{% static avatar_path %}" alt="..." class="rounded-circle img-thumbnail">
+                    </div>
+                    <hr>
+                    <div class="block-body text-center">
+                        <button type="button" data-toggle="modal" data-target="#profile_pic_modal" class="btn btn-primary">Change</button>
+                        <!-- Modal-->
+                        <div id="profile_pic_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" class="modal fade text-left">
+                            <div role="document" class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header"><strong id="exampleModalLabel" class="modal-title">Select Avatar</strong>
+                                        <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true">×</span></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form method="POST" action="{% url 'avatar_update' %}">
+                                            {% csrf_token %}
+                                            <div class="row">
+                                                <div class="col-4">
+                                                    <input id="select_pic_0" type="radio" checked="" value="avatar-0" name="profile_avatar">
+                                                    <label for="profile_avatar">
+                                                            <img src="{% static 'img/profile_pics/avatar-0.png' %}" alt="..." class="rounded-circle img-thumbnail">  
+                                                    </label>
+                                                </div>
+                                                <div class="col-4">
+                                                    <input id="select_pic_1" type="radio" checked="" value="avatar-1" name="profile_avatar">
+                                                    <label for="profile_avatar">
+                                                            <img src="{% static 'img/profile_pics/avatar-1.png' %}" alt="..." class="rounded-circle img-thumbnail">  
+                                                    </label>
+                                                </div>
+                                                <div class="col-4">
+                                                    <input id="select_pic_2" type="radio" checked="" value="avatar-2" name="profile_avatar">
+                                                    <label for="profile_avatar">
+                                                            <img src="{% static 'img/profile_pics/avatar-2.png' %}" alt="..." class="rounded-circle img-thumbnail">  
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-4">
+                                                    <input id="select_pic_3" type="radio" checked="" value="avatar-3" name="profile_avatar">
+                                                    <label for="profile_avatar">
+                                                            <img src="{% static 'img/profile_pics/avatar-3.png' %}" alt="..." class="rounded-circle img-thumbnail">  
+                                                    </label>
+                                                </div>
+                                                <div class="col-4">
+                                                    <input id="select_pic_4" type="radio" checked="" value="avatar-4" name="profile_avatar">
+                                                    <label for="profile_avatar">
+                                                            <img src="{% static 'img/profile_pics/avatar-4.png' %}" alt="..." class="rounded-circle img-thumbnail">  
+                                                    </label>
+                                                </div>
+                                                <div class="col-4">
+                                                    <input id="select_pic_5" type="radio" checked="" value="avatar-5" name="profile_avatar">
+                                                    <label for="profile_avatar">
+                                                            <img src="{% static 'img/profile_pics/avatar-5.png' %}" alt="..." class="rounded-circle img-thumbnail">  
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-4">
+                                                    <input id="select_pic_6" type="radio" checked="" value="avatar-6" name="profile_avatar">
+                                                    <label for="profile_avatar">
+                                                            <img src="{% static 'img/profile_pics/avatar-6.png' %}" alt="..." class="rounded-circle img-thumbnail">  
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="form-group text-center">       
+                                                <input type="submit" value="Save" class="btn btn-primary">
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="block">
+                    <div class="title"><strong>Password</strong></div>
+                    <div class="block-body text-center">
+                        
+                        <button type="button" data-toggle="modal" data-target="#password_modal" class="btn btn-primary">Change Password</button>
+                        <!-- Modal-->
+                        <div id="password_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" class="modal fade text-left">
+                            <div role="document" class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header"><strong id="exampleModalLabel" class="modal-title">Change Your password here</strong>
+                                        <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true">×</span></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form method="POST" action="{% url 'password_chg' %}">
+                                            {% csrf_token %}
+                                            <div class="form-group">       
+                                                <input name="password_current" type="password" placeholder="Current Password" class="form-control">
+                                            </div>
+                                            <div class="form-group">       
+                                                <input name="password" type="password" placeholder="New Password" class="form-control">
+                                            </div>
+                                            <div class="form-group">
+                                                <input name="password1" type="password" placeholder="Re-type New Password" class="form-control">
+                                            </div>
+                                            <div class="form-group">       
+                                                <input type="submit" value="Change Password" class="btn btn-primary">
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="block">
+                    <div class="title"><strong>Profile Update</strong></div>
+                    {% if has_error %}
+                        <div class="alert alert-warning" role="alert">
+                            {{ message }}
+                        </div>
+                    {% else %}
+                        {% if message %}
+                            <div class="alert alert-primary" role="alert">
+                                {{ message }}
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                    <div class="block-body">
+                        <form action="{% url 'my_profile' %}" method="POST">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label class="form-control-label">Email</label>
+                                <input type="email" placeholder="Email" class="form-control" name="email" value="{{ email }}">
+                            </div>
+                            <div class="form-group">       
+                                <label class="form-control-label">UserName</label>
+                                <input type="text" placeholder="User Name" class="form-control" name="username" value="{{ username }}">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-control-label">First Name</label>
+                                <input type="text" placeholder="First Name" class="form-control" name="firstname" value="{{ firstname }}">
+                            </div>
+                            <div class="form-group">       
+                                    <label class="form-control-label">Last Name</label>
+                                    <input type="text" placeholder="Last Name" class="form-control" name="lastname" value="{{ lastname }}">
+                            </div>
+                            <div class="form-group">       
+                                <input type="submit" value="Update" class="btn btn-primary">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

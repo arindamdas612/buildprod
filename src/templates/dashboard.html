@@ -1,0 +1,427 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <section class="no-padding-top no-padding-bottom">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-3 col-sm-6">
+                    <div class="statistic-block block">
+                        <div class="progress-details d-flex align-items-end justify-content-between">
+                            <div class="title">
+                                <div class="icon"><i class="icon-user-1"></i></div><strong>Admins</strong>
+                            </div>
+                            <div class="number dashtext-1">{{admin_count}}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="statistic-block block">
+                        <div class="progress-details d-flex align-items-end justify-content-between">
+                            <div class="title">
+                                <div class="icon"><i class="icon-user"></i></div><strong>Staffs</strong>
+                            </div>
+                            <div class="number dashtext-2">{{staff_count}}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="statistic-block block">
+                        <div class="progress-details d-flex align-items-end justify-content-between">
+                            <div class="title">
+                                <div class="icon"><i class="icon-user-1"></i></div><strong>Sellers</strong>
+                            </div>
+                            <div class="number dashtext-3">{{seller_count}}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="statistic-block block">
+                        <div class="progress-details d-flex align-items-end justify-content-between">
+                            <div class="title">
+                                <div class="icon"><i class="icon-user"></i></div><strong>Distributors</strong>
+                            </div>
+                            <div class="number dashtext-4">{{distributor_count}}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 col-sm-8">
+                    <div class="statistic-block block">
+                        <div class="progress-details d-flex align-items-end justify-content-between">
+                            <div class="title">
+                                <div class="icon"><i class="fa fa-circle"> {{stock_percent}}%</i></div><strong>Inward</strong>
+                            </div>
+                            <div class="number dashtext-1">{{stocked_weight}}K</div>
+                        </div>
+                        <div class="progress progress-template">
+                            <div role="progressbar" style="width: {{stock_percent}}%" aria-valuenow="{{stock_percent}}" aria-valuemin="0" aria-valuemax="100" class="progress-bar progress-bar-template dashbg-1"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-8">
+                    <div class="statistic-block block">
+                        <div class="progress-details d-flex align-items-end justify-content-between">
+                            <div class="title">
+                                <div class="icon"><i class="fa fa-shopping-bag"> {{outward_percent}}%</i></div><strong>outward</strong>
+                            </div>
+                            <div class="number dashtext-2">{{outward_weight}}K</div>
+                        </div>
+                        <div class="progress progress-template">
+                            <div role="progressbar" style="width: {{outward_percent}}%" aria-valuenow="{{outward_percent}}" aria-valuemin="0" aria-valuemax="100" class="progress-bar progress-bar-template dashbg-2"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-8">
+                    <div class="statistic-block block">
+                        <div class="progress-details d-flex align-items-end justify-content-between">
+                            <div class="title">
+                                <div class="icon"><i class="fa fa-recycle"> {{waste_percent}}%</i></div><strong>waste</strong>
+                            </div>
+                            <div class="number dashtext-3">{{waste_weight}}K</div>
+                        </div>
+                        <div class="progress progress-template">
+                            <div role="progressbar" style="width: {{waste_percent}}%" aria-valuenow="{{waste_percent}}" aria-valuemin="0" aria-valuemax="100" class="progress-bar progress-bar-template dashbg-3"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="bar-chart block chart">
+                        <div class="title"><strong>Roll-Bag-Waste [Monthly]</strong></div>
+                        <div class="bar-chart chart">
+                            <canvas id="type-0-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="bar-chart block chart">
+                        <div class="title"><strong>Roll-Bag-Waste [Daily]</strong></div>
+                        <div class="bar-chart chart">
+                            <canvas id="type-1-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="block chart">
+                        <div class="title"><strong>Rolls Vs Bags</strong></div>
+                        <div class="chart">
+                            <canvas id="type-2-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+{% endblock %}
+
+
+
+{% block js %}
+    <script>
+        var endpoint = 'api/chart-data';
+
+        $.ajax({
+            method: 'GET',
+            url: endpoint,
+            success: function(data){
+                make_type_0(data[0]);
+                make_type_1(data[1]);
+                make_type_2(data[2]);
+            },
+            error: function(error_data){
+                console.log('Cannot fetch chart data')
+            }
+        });
+
+        function make_type_0(type_0_set){
+            var TYPE0    = $('#type-0-chart');
+            var type_0 = new Chart(TYPE0, {
+                type: 'bar',
+                options: {
+                    scales: {
+                        xAxes: [{
+                            display: false,
+                            gridLines: {
+                                color: '#eee'
+                            }
+                        }],
+                        yAxes: [{
+                            display: false,
+                            gridLines: {
+                                color: '#eee'
+                            }
+                        }]
+                    },
+                },
+                data: {
+                    labels: type_0_set.label,
+                    datasets: [
+                        {
+                            label: "Stock",
+                            backgroundColor: [
+                                "rgba(134, 77, 217, 0.57)",
+                                "rgba(134, 77, 217, 0.57)",
+                                "rgba(134, 77, 217, 0.57)",
+                                "rgba(134, 77, 217, 0.57)",
+                                "rgba(134, 77, 217, 0.57)",
+                                "rgba(134, 77, 217, 0.57)",
+                                "rgba(134, 77, 217, 0.57)"
+                            ],
+                            hoverBackgroundColor: [
+                                "rgba(134, 77, 217, 0.57)",
+                                "rgba(134, 77, 217, 0.57)",
+                                "rgba(134, 77, 217, 0.57)",
+                                "rgba(134, 77, 217, 0.57)",
+                                "rgba(134, 77, 217, 0.57)",
+                                "rgba(134, 77, 217, 0.57)",
+                                "rgba(134, 77, 217, 0.57)"
+                            ],
+                            borderColor: [
+                                "rgba(134, 77, 217, 1)",
+                                "rgba(134, 77, 217, 1)",
+                                "rgba(134, 77, 217, 1)",
+                                "rgba(134, 77, 217, 1)",
+                                "rgba(134, 77, 217, 1)",
+                                "rgba(134, 77, 217, 1)",
+                                "rgba(134, 77, 217, 1)"
+                            ],
+                            borderWidth: 1,
+                            data: type_0_set.data[0],
+                        },
+                        {
+                            label: "Produced",
+                            backgroundColor: [
+                                "rgba(75, 75, 75, 0.7)",
+                                "rgba(75, 75, 75, 0.7)",
+                                "rgba(75, 75, 75, 0.7)",
+                                "rgba(75, 75, 75, 0.7)",
+                                "rgba(75, 75, 75, 0.7)",
+                                "rgba(75, 75, 75, 0.7)",
+                                "rgba(75, 75, 75, 0.7)"
+                            ],
+                            hoverBackgroundColor: [
+                                "rgba(75, 75, 75, 0.7)",
+                                "rgba(75, 75, 75, 0.7)",
+                                "rgba(75, 75, 75, 0.7)",
+                                "rgba(75, 75, 75, 0.7)",
+                                "rgba(75, 75, 75, 0.7)",
+                                "rgba(75, 75, 75, 0.7)",
+                                "rgba(75, 75, 75, 0.7)"
+                            ],
+                            borderColor: [
+                                "rgba(75, 75, 75, 0.7)",
+                                "rgba(75, 75, 75, 0.7)",
+                                "rgba(75, 75, 75, 0.7)",
+                                "rgba(75, 75, 75, 0.7)",
+                                "rgba(75, 75, 75, 0.7)",
+                                "rgba(75, 75, 75, 0.7)",
+                                "rgba(75, 75, 75, 0.7)"
+                            ],
+                            borderWidth: 1,
+                            data: type_0_set.data[1],
+                        },
+                        {
+                            label: "Waste",
+                            backgroundColor: [
+                                "rgba(254, 127, 156, 0.7)",
+                                "rgba(254, 127, 156, 0.7)",
+                                "rgba(254, 127, 156, 0.7)",
+                                "rgba(254, 127, 156, 0.7)",
+                                "rgba(254, 127, 156, 0.7)",
+                                "rgba(254, 127, 156, 0.7)",
+                                "rgba(254, 127, 156, 0.7)"
+                            ],
+                            hoverBackgroundColor: [
+                                "rgba(254, 127, 156, 0.7)",
+                                "rgba(254, 127, 156, 0.7)",
+                                "rgba(254, 127, 156, 0.7)",
+                                "rgba(254, 127, 156, 0.7)",
+                                "rgba(254, 127, 156, 0.7)",
+                                "rgba(254, 127, 156, 0.7)",
+                                "rgba(254, 127, 156, 0.7)"
+                            ],
+                            borderColor: [
+                                "rgba(254, 127, 156, 0.7)",
+                                "rgba(254, 127, 156, 0.7)",
+                                "rgba(254, 127, 156, 0.7)",
+                                "rgba(254, 127, 156, 0.7)",
+                                "rgba(254, 127, 156, 0.7)",
+                                "rgba(254, 127, 156, 0.7)",
+                                "rgba(254, 127, 156, 0.7)"
+                            ],
+                            borderWidth: 1,
+                            data: type_0_set.data[2],
+                        }
+                    ]
+                }
+            }); 
+        }
+
+        function make_type_1(type_1_set){
+            var TYPE1    = $('#type-1-chart');
+            var type_1 = new Chart(TYPE1, {
+                type: 'bar',
+                options: {
+                    scales: {
+                        xAxes: [{
+                            display: false,
+                            gridLines: {
+                                color: '#eee'
+                            }
+                        }],
+                        yAxes: [{
+                            display: false,
+                            gridLines: {
+                                color: '#eee'
+                            }
+                        }]
+                    },
+                },
+                data: {
+                    labels: type_1_set.label,
+                    datasets: [
+                        {
+                            label: "Stock",
+                            backgroundColor: [
+                                "rgba(134, 77, 217, 0.57)",
+                                "rgba(134, 77, 217, 0.57)",
+                                "rgba(134, 77, 217, 0.57)",
+                                "rgba(134, 77, 217, 0.57)",
+                                "rgba(134, 77, 217, 0.57)",
+                                "rgba(134, 77, 217, 0.57)",
+                                "rgba(134, 77, 217, 0.57)"
+                            ],
+                            hoverBackgroundColor: [
+                                "rgba(134, 77, 217, 0.57)",
+                                "rgba(134, 77, 217, 0.57)",
+                                "rgba(134, 77, 217, 0.57)",
+                                "rgba(134, 77, 217, 0.57)",
+                                "rgba(134, 77, 217, 0.57)",
+                                "rgba(134, 77, 217, 0.57)",
+                                "rgba(134, 77, 217, 0.57)"
+                            ],
+                            borderColor: [
+                                "rgba(134, 77, 217, 1)",
+                                "rgba(134, 77, 217, 1)",
+                                "rgba(134, 77, 217, 1)",
+                                "rgba(134, 77, 217, 1)",
+                                "rgba(134, 77, 217, 1)",
+                                "rgba(134, 77, 217, 1)",
+                                "rgba(134, 77, 217, 1)"
+                            ],
+                            borderWidth: 1,
+                            data: type_1_set.data[0],
+                        },
+                        {
+                            label: "Produced",
+                            backgroundColor: [
+                                "rgba(75, 75, 75, 0.7)",
+                                "rgba(75, 75, 75, 0.7)",
+                                "rgba(75, 75, 75, 0.7)",
+                                "rgba(75, 75, 75, 0.7)",
+                                "rgba(75, 75, 75, 0.7)",
+                                "rgba(75, 75, 75, 0.7)",
+                                "rgba(75, 75, 75, 0.7)"
+                            ],
+                            hoverBackgroundColor: [
+                                "rgba(75, 75, 75, 0.7)",
+                                "rgba(75, 75, 75, 0.7)",
+                                "rgba(75, 75, 75, 0.7)",
+                                "rgba(75, 75, 75, 0.7)",
+                                "rgba(75, 75, 75, 0.7)",
+                                "rgba(75, 75, 75, 0.7)",
+                                "rgba(75, 75, 75, 0.7)"
+                            ],
+                            borderColor: [
+                                "rgba(75, 75, 75, 0.7)",
+                                "rgba(75, 75, 75, 0.7)",
+                                "rgba(75, 75, 75, 0.7)",
+                                "rgba(75, 75, 75, 0.7)",
+                                "rgba(75, 75, 75, 0.7)",
+                                "rgba(75, 75, 75, 0.7)",
+                                "rgba(75, 75, 75, 0.7)"
+                            ],
+                            borderWidth: 1,
+                            data: type_1_set.data[1],
+                        },
+                        {
+                            label: "Waste",
+                            backgroundColor: [
+                                "rgba(254, 127, 156, 0.7)",
+                                "rgba(254, 127, 156, 0.7)",
+                                "rgba(254, 127, 156, 0.7)",
+                                "rgba(254, 127, 156, 0.7)",
+                                "rgba(254, 127, 156, 0.7)",
+                                "rgba(254, 127, 156, 0.7)",
+                                "rgba(254, 127, 156, 0.7)"
+                            ],
+                            hoverBackgroundColor: [
+                                "rgba(254, 127, 156, 0.7)",
+                                "rgba(254, 127, 156, 0.7)",
+                                "rgba(254, 127, 156, 0.7)",
+                                "rgba(254, 127, 156, 0.7)",
+                                "rgba(254, 127, 156, 0.7)",
+                                "rgba(254, 127, 156, 0.7)",
+                                "rgba(254, 127, 156, 0.7)"
+                            ],
+                            borderColor: [
+                                "rgba(254, 127, 156, 0.7)",
+                                "rgba(254, 127, 156, 0.7)",
+                                "rgba(254, 127, 156, 0.7)",
+                                "rgba(254, 127, 156, 0.7)",
+                                "rgba(254, 127, 156, 0.7)",
+                                "rgba(254, 127, 156, 0.7)",
+                                "rgba(254, 127, 156, 0.7)"
+                            ],
+                            borderWidth: 1,
+                            data: type_1_set.data[2],
+                        }
+                    ]
+                }
+            });   
+        }
+
+
+        function make_type_2(type_2_set){
+            console.log(type_2_set)
+            var TYPE2    = $('#type-2-chart');
+            var type_2 = new Chart(TYPE2, {
+                type: 'bubble',
+                options: {
+                    scales: {
+                        xAxes: [{
+                            display: true,
+                            
+                        }],
+                        yAxes: [{
+                            display: true,
+                            
+                        }]
+                    },
+                    legend: {
+                        display: false
+                    },
+                },
+                data: {
+                    datasets: type_2_set.data
+                }
+            });
+        }
+    </script>
+
+{% endblock %}
