@@ -9,6 +9,7 @@ from core.models import Avatar
 from .forms import RollForm, BagForm, ShipForm
 from .models import Waste, Roll, Bag, Ship, InventoryTransactions
 from .utils import waste_management
+from core.reports import get_report_dates
 
 # Create your views here.
 @login_required
@@ -31,12 +32,14 @@ def stock(request):
             msg = 'Roll stocked into inventory'
     template_name = 'stock.html'
     form = RollForm()
+    month_choice = get_report_dates()
     context = {
         'title': 'Factory | Stock',
         'section_title': 'Stck Rolls',
         'avatar_path': 'img/profile_pics/'+ avatar.name + '.png',
         'form': form,
-        'msg': msg
+        'msg': msg,
+        'month_choice': month_choice
     }
     return render(request, template_name, context=context)
 
@@ -56,13 +59,15 @@ def make(request):
             msg = 'Bag created and stocked into inventory!!!'
             make_form = BagForm()
     template_name = 'make.html'
+    month_choice = get_report_dates()
     context = {
         'title': 'Factory | Make n Ship',
         'section_title': 'Make n Ship',
         'avatar_path': 'img/profile_pics/'+ avatar.name + '.png',
         'make_form': make_form,
         'ship_form': ship_form,
-        'msg': msg
+        'msg': msg,
+        'month_choice': month_choice
     }
     return render(request, template_name, context=context) 
 
@@ -103,13 +108,14 @@ def roll_warehouse(request):
     paginator = Paginator(rolls_list,10)
     page = request.GET.get('page')
     rolls = paginator.get_page(page)
-
     template_name = 'warehouse-roll.html'
+    month_choice = get_report_dates()
     context = {
         'title': 'Warehouse | Roll',
         'section_title': 'Rolls',
         'avatar_path': 'img/profile_pics/'+ avatar.name + '.png',
-        'rolls': rolls
+        'rolls': rolls,
+        'month_choice': month_choice
     }
     return render(request, template_name, context=context) 
 
@@ -126,11 +132,13 @@ def bag_warehouse(request):
     
     
     template_name = 'warehouse-bag.html'
+    month_choice = get_report_dates()
     context = {
         'title': 'Warehouse | Bag',
         'section_title': 'Bags',
         'avatar_path': 'img/profile_pics/'+ avatar.name + '.png',
-        'bags': bags
+        'bags': bags,
+        'month_choice': month_choice
     }
     return render(request, template_name, context=context) 
 
@@ -145,13 +153,14 @@ def waste_warehouse(request):
     page = request.GET.get('page')
     wastes = paginator.get_page(page)
     
-    
+    month_choice = get_report_dates()
     template_name = 'warehouse-waste.html'
     context = {
         'title': 'Warehouse | Waste',
         'section_title': 'Wastes',
         'avatar_path': 'img/profile_pics/'+ avatar.name + '.png',
         'wastes': wastes,
+        'month_choice': month_choice
     }
     return render(request, template_name, context=context) 
     
@@ -166,12 +175,15 @@ def inward_log(request):
 
     user = User.objects.get(username=request.user.username)
     avatar = Avatar.objects.get(user=user)
+
+    month_choice = get_report_dates()
     template_name = 'log_0.html'
     context = {
         'title': 'Activity | Inward',
         'section_title': 'Inward Log',
         'avatar_path': 'img/profile_pics/'+ avatar.name + '.png',
-        'transactions': trxns
+        'transactions': trxns, 
+        'month_choice': month_choice
     }
     return render(request, template_name, context=context) 
 
@@ -187,11 +199,13 @@ def production_log(request):
     user = User.objects.get(username=request.user.username)
     avatar = Avatar.objects.get(user=user)
     template_name = 'log_1.html'
+    month_choice = get_report_dates()
     context = {
         'title': 'Activity | Production',
         'section_title': 'Production Log',
         'avatar_path': 'img/profile_pics/'+ avatar.name + '.png',
-        'transactions': trxns
+        'transactions': trxns,
+        'month_choice': month_choice
     }
     return render(request, template_name, context=context) 
 
@@ -207,11 +221,13 @@ def outward_log(request):
     user = User.objects.get(username=request.user.username)
     avatar = Avatar.objects.get(user=user)
     template_name = 'log_4.html'
+    month_choice  = get_report_dates()
     context = {
         'title': 'Activity | Outward',
         'section_title': 'Outward Log',
         'avatar_path': 'img/profile_pics/'+ avatar.name + '.png',
-        'transactions': trxns
+        'transactions': trxns,
+        'month_choice': month_choice
     }
     return render(request, template_name, context=context) 
 
@@ -227,10 +243,12 @@ def waste_log(request):
     user = User.objects.get(username=request.user.username)
     avatar = Avatar.objects.get(user=user)
     template_name = 'log_2.html'
+    month_choice = get_report_dates()
     context = {
         'title': 'Activity | Waste',
         'section_title': 'Waste Log',
         'avatar_path': 'img/profile_pics/'+ avatar.name + '.png',
-        'transactions': trxns
+        'transactions': trxns,
+        'month_choice': month_choice
     }
     return render(request, template_name, context=context) 

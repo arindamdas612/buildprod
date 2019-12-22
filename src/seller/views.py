@@ -6,6 +6,7 @@ from django.core.paginator import Paginator
 from django.contrib.auth.models import User
 
 from core.models import Avatar
+from core.reports import get_report_dates
 
 # Create your views here.
 
@@ -35,13 +36,15 @@ def seller(request):
     sellers = paginator.get_page(page)
     user = User.objects.get(username=request.user.username)
     avatar = Avatar.objects.get(user=user)
+    month_choice = get_report_dates()
     context = {
         'title': 'Sellers',
         'section_title': 'Seller - All',
         'sellers': sellers,
         'has_error': has_error,
         'msg': msg,
-        'avatar_path': 'img/profile_pics/'+ avatar.name + '.png'
+        'avatar_path': 'img/profile_pics/'+ avatar.name + '.png',
+        'month_choice': month_choice
     }
     return render(request, template_name, context=context)
 

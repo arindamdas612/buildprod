@@ -3,6 +3,8 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
+
+from core.reports import get_report_dates
 import re
 
 from core.models import Avatar
@@ -55,13 +57,15 @@ def staff(request):
     staffs = paginator.get_page(page)
     user = User.objects.get(username=request.user.username)
     avatar = Avatar.objects.get(user=user)
+    month_choice = get_report_dates()
     context = {
         'title': 'Staffs',
         'section_title': 'Staff - All',
         'staffs': staffs,
         'has_error': has_error,
         'msg': msg,
-        'avatar_path': 'img/profile_pics/'+ avatar.name + '.png'
+        'avatar_path': 'img/profile_pics/'+ avatar.name + '.png',
+        'month_choice': month_choice
     }
     return render(request, template_name, context=context)
 
