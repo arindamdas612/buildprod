@@ -39,9 +39,9 @@ def get_weight_distribution():
     data['admin_count'] = User.objects.filter(is_staff=True).count()
     data['staff_count'] = User.objects.filter(is_staff=False).count()
     
-    if stocked_weight > 0:
+    try:
         data['stocked_weight'] = round(stocked_weight/1000,1)
-    else:
+    except:
         data['stocked_weight'] = 0
 
     try:
