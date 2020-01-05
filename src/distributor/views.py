@@ -38,8 +38,8 @@ def distributor(request):
     avatar = Avatar.objects.get(user=user)
     month_choice = get_report_dates()
     context = {
-        'title': 'Distributors',
-        'section_title': 'Distributor - All',
+        'title': 'Parties',
+        'section_title': 'Party - All',
         'distributors': distributors,
         'has_error': has_error,
         'msg': msg,

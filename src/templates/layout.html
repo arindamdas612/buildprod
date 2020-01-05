@@ -29,8 +29,8 @@
         <div class="container-fluid d-flex align-items-center justify-content-between">
           <div class="navbar-header">
             <!-- Navbar Header--><a href="#" class="navbar-brand">
-              <div class="brand-text brand-big visible text-uppercase"><strong class="text-primary">Build</strong><strong>Prod</strong></div>
-              <div class="brand-text brand-sm"><strong class="text-primary">B</strong><strong>P</strong></div></a>
+              <div class="brand-text brand-big visible text-uppercase"><strong class="text-primary">SPC</strong><strong>&nbsp;Shree Krishna Foodtech</strong></div>
+              <div class="brand-text brand-sm"><strong class="text-primary">SPC</strong><strong>SKF</strong></div></a>
             <!-- Sidebar Toggle Btn-->
             <button class="sidebar-toggle"><i class="fa fa-long-arrow-left"></i></button>
           </div>
@@ -50,11 +50,48 @@
                     </div>
                   </div>
                 </div>
-              </form>
-            </div>
+              </form> 
+              </div>  
+              <div class="list-inline-item dropdown">
+                <a id="navbarDropdownMenuLink1" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link messages-toggle">
+                  <i class="fa fa-truck" aria-hidden="true"></i>
+                    {% if cart_count == 0%}
+                      <span class="badge dashbg-3">
+                    {%else%}
+                      <span class="badge dashbg-1">
+                    {%endif%}
+                      {{cart_count}}
+                    </span>
+                </a>
+                <div aria-labelledby="navbarDropdownMenuLink1" class="dropdown-menu messages"><a href="#" class="dropdown-item message d-flex align-items-center">
+                  
+                  {% if user_cart %}
+                    {% for cart_item in user_cart %}
+                      <a href="" class="dropdown-item message d-flex align-items-center">
+                        <div class="content">   
+                          <strong class="d-block">{{ cart_item.bag.bag_type}} bag [{{ cart_item.pricing }} pricing]</strong>
+                          <span class="d-block">{{ cart_item.bag.roll.color }}: {{ cart_item.bag.roll.gsm }} GSM</span>
+                          <span class="d-block">{{ cart_item.bag.height }} X {{ cart_item.bag.width }} {{ cart_item.weight }} Kgs</span>
+                        </div>
+                      </a>
+                    {%endfor%}
+                    <a href="{% url 'ship_bag' %}" class="dropdown-item text-center message"> 
+                      <strong>ship to Party <i class="fa fa-angle-right"></i></strong>
+                    </a>
+                  {%else%}
+                    <a href="{% url 'ship_bag' %}" class="dropdown-item text-center message"> 
+                      <strong>No Shippments. Add Now <i class="fa fa-angle-right"></i></strong>
+                    </a>
+                  {%endif%}
+                    
+                    
+
+
+                </div>
+              </div>
             <!-- Log out               -->
             <div class="list-inline-item logout"><a id="logout" href="{% url 'logout' %}" class="nav-link"> <span class="d-none d-sm-inline">Logout </span><i class="icon-logout"></i></a></div>
-          </div>
+          
         </div>
       </nav>
     </header>
@@ -80,14 +117,15 @@
           <li {% if 'Staffs' in title %} class="active" {% endif %}><a href="{% url 'staffs' %}"> <i class="fa fa-users"></i>Staffs</a></li>
           {% endif %}
           <li {% if 'Sellers' in title %} class="active" {% endif %}><a href="{% url 'sellers' %}"> <i class="icon-user"></i>Sellers</a></li>
-          <li {% if 'Distributors' in title %} class="active" {% endif %}><a href="{% url 'distributors' %}"> <i class="icon-user-1"></i>Distributors</a></li>
+          <li {% if 'Parties' in title %} class="active" {% endif %}><a href="{% url 'distributors' %}"> <i class="icon-user-1"></i>Parties</a></li>
         </ul>
         <span class="heading">Factory</span>
         <ul class="list-unstyled">
           <li {% if 'Warehouse' in title %} class="active" {% endif %}> <a href="{% url 'roll_activites' %}"> <i class="fa fa-industry"></i>Warehouse</a></li>
           <li {% if 'Activity' in title %} class="active" {% endif %}> <a href="{% url 'inward_log' %}"> <i class="fa fa-bars"></i>Activity Logs</a></li>
-          <li {% if 'Stock' in title %} class="active" {% endif %}> <a href="{% url 'roll_stock' %}"> <i class="fa fa-cubes"></i>Stock</a></li>
-          <li {% if 'Make n Ship' in title %} class="active" {% endif %}> <a href="{% url 'make_bag' %}"> <i class="fa fa-random"></i>Make n Ship</a></li>
+          <li {% if 'Stock' in title %} class="active" {% endif %}> <a href="{% url 'roll_stock' %}"> <i class="fa fa-cubes"></i>Stock Rolls</a></li>
+          <li {% if 'Make' in title %} class="active" {% endif %}> <a href="{% url 'make_bag' %}"> <i class="fa fa-random"></i>Make Bags</a></li>
+          <li {% if 'Ship' in title %} class="active" {% endif %}> <a href="{% url 'ship_bag' %}"> <i class="fa fa-random"></i>Ship Bags</a></li>
         </ul>
       </nav>
       <!-- Sidebar Navigation end-->

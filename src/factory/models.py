@@ -9,41 +9,47 @@ from distributor.models import Distributor
 
 
 class Roll(models.Model):
-
-    class RollType(models.TextChoices):
-        D_TYPE = 'd', _('d-type rolls')
-        U_TYPE = 'u', _('u-type rolls')
-
     seller = models.ForeignKey(Seller, on_delete=models.CASCADE)
     gsm = models.IntegerField()
     color = models.CharField(max_length=50)
-    roll_type = models.CharField(max_length=2, choices=RollType.choices, default=RollType.D_TYPE)
     width = models.FloatField()
     weight = models.FloatField()
-    unit = models.IntegerField()
+    length = models.FloatField(null=True)
+    unit = models.IntegerField(null=True)
     stock_timestamp = models.DateTimeField(auto_now_add=True)
     updated_timestamp = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.color} {self.gsm} GSM {self.width}'' {round(self.weight,2)} Kg {self.unit} Unit(s) [{self.roll_type}-type]"
+        if self.unit == 1:
+            return f"{self.color} {self.gsm} GSM {self.width}'' {round(self.weight,2)} Kg {self.length} m {self.unit} unit"
+        else:
+            return f"{self.color} {self.gsm} GSM {self.width}'' {round(self.weight,2)} Kg {self.length} m {self.unit} units"
 
 
 class Bag(models.Model):
     
-    class State(models.TextChoices):
-        STOCKED = 'STOCKED', _('In Stock')
-        SHIPPED = 'SHIPPED', _('Shipped')
+    class BagType(models.TextChoices):
+        D_TYPE = 'd-cut', _('d-cut')
+        U_TYPE = 'u-cut', _('u-cut')
+        HANDLE = 'handle', _('handle')
+    
+    class Status(models.TextChoices):
+        STOCKED = 'stocked', _('stocked')
+        CART = 'in cart', _('In Cart')
+        SHIPPED = 'shipped', _('Shipped')
 
     roll = models.ForeignKey(Roll, on_delete=models.CASCADE)
-    status = models.CharField(max_length=10, choices=State.choices, default=State.STOCKED)
-    weight = models.FloatField()
-    unit = models.IntegerField()
+    bag_type = models.CharField(max_length=10, choices=BagType.choices, default=BagType.D_TYPE)
+    status = models.CharField(max_length=10, choices=Status.choices, default=Status.STOCKED)
+    weight = models.FloatField(null=True)
+    height = models.FloatField(null=True)
+    width = models.FloatField(null=True)
     create_timestamp = models.DateTimeField(auto_now_add=True)
     updated_timestamp = models.DateTimeField(auto_now=True)
 
     
     def __str__(self):
-        return f"{self.roll.color} {self.roll.gsm} GSM {self.roll.width}'' [{self.unit} unit(s)]"
+        return f"{self.bag_type} {self.roll.color} {self.roll.gsm} GSM {self.height}'' X  {self.width}'' {self.weight} Kgs"
 
 
 class Waste(models.Model):
@@ -71,3 +77,17 @@ class InventoryTransactions(models.Model):
     unit = models.IntegerField(null=True)
     trxn_user = models.ForeignKey(User, on_delete=models.CASCADE)
     trxn_timestamp = models.DateTimeField(auto_now_add=True)
+
+class ShipCart(models.Model):
+    class Pricing(models.TextChoices):
+        BASIC = 'basic', _('Basic')
+        COLUR = 'colour', _('Colour')
+
+    bag = models.ForeignKey(Bag, on_delete=models.CASCADE, null=True)
+    weight = models.FloatField(null=True)
+    pricing = models.CharField(max_length=10, choices=Pricing.choices, default=Pricing.BASIC)
+    cart_owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    create_timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.bag}"

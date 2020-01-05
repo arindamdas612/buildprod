@@ -3,11 +3,11 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.utils.timezone import get_current_timezone
-from django.db.models import Sum
+from django.db.models import Sum, Count
 
 from core.models import Avatar
-from .forms import RollForm, BagForm, ShipForm
-from .models import Waste, Roll, Bag, Ship, InventoryTransactions
+from .forms import RollForm, BagForm, ShipForm, ShipCartForm
+from .models import Waste, Roll, Bag, Ship, InventoryTransactions, ShipCart
 from .utils import waste_management
 from core.reports import get_report_dates
 
@@ -25,7 +25,7 @@ def stock(request):
                 trxn_type = 0,
                 roll = new_roll,
                 weight =  new_roll.weight,
-                unit = new_roll.unit,
+                unit=new_roll.unit,
                 trxn_user=request.user
             )
             trxn.save()
@@ -35,7 +35,7 @@ def stock(request):
     month_choice = get_report_dates()
     context = {
         'title': 'Factory | Stock',
-        'section_title': 'Stck Rolls',
+        'section_title': 'Stock Rolls',
         'avatar_path': 'img/profile_pics/'+ avatar.name + '.png',
         'form': form,
         'msg': msg,
@@ -46,23 +46,26 @@ def stock(request):
 
 @login_required
 def make(request):
-    make_form = BagForm(request.POST or None)
+    make_form = BagForm()
     ship_form = ShipForm()
 
     user = User.objects.get(username=request.user.username)
     avatar = Avatar.objects.get(user=user)
     msg = ''
     if request.method == 'POST':
+        roll_weight = request.POST.get('roll_weight')
+        waste_weight = request.POST.get('waste_weight')
+        make_form = BagForm(request.POST, roll_weight=roll_weight, waste_weight=waste_weight)
         if make_form.is_valid():
             bag = make_form.save()
-            waste_management(bag.id, bag.roll.id, request.user)
+            waste_management(bag.id, bag.roll.id, request.user, roll_weight, waste_weight)
             msg = 'Bag created and stocked into inventory!!!'
             make_form = BagForm()
     template_name = 'make.html'
     month_choice = get_report_dates()
     context = {
-        'title': 'Factory | Make n Ship',
-        'section_title': 'Make n Ship',
+        'title': 'Factory | Make',
+        'section_title': 'Make Bags',
         'avatar_path': 'img/profile_pics/'+ avatar.name + '.png',
         'make_form': make_form,
         'ship_form': ship_form,
@@ -74,6 +77,7 @@ def make(request):
 
 @login_required
 def ship(request):
+    """
     if request.method == 'POST':
         form = ShipForm(request.POST)
         print(form.is_valid())
@@ -93,6 +97,32 @@ def ship(request):
             ship_trxn.save()
     
     return redirect('make_bag')
+    """
+    form = ShipCartForm(request.POST or None)
+    user = User.objects.get(username=request.user.username)
+    avatar = Avatar.objects.get(user=user)
+    if request.method == 'POST':
+        if form.is_valid():
+            cart_item = form.save(user=user)
+            cart_bag = cart_item.bag
+            cart_bag.status = 'in cart'
+            cart_bag.save()
+            form = ShipCartForm()
+
+    user_cart = ShipCart.objects.filter(cart_owner=user)
+    cart_count = ShipCart.objects.filter(cart_owner=user).count()
+    template_name = 'ship.html'
+    month_choice = get_report_dates()
+    context = {
+        'title': 'Factory | Ship',
+        'section_title': 'Shipping Cart',
+        'avatar_path': 'img/profile_pics/'+ avatar.name + '.png',
+        'month_choice': month_choice,
+        'form': form,
+        'user_cart': user_cart,
+        'cart_count': cart_count,
+    }
+    return render(request, template_name, context=context) 
 
 
 @login_required
@@ -103,8 +133,8 @@ def roll_warehouse(request):
     #ed = datetime.date.now(tz=get_current_timezone())
     #st = ed - datetime.timedelta(days=1)
     
-    rolls_list = Roll.objects.values('color', 'gsm', 'width', 'roll_type'). \
-        annotate(total_units=Sum('unit')).order_by('roll_type', '-total_units')
+    rolls_list = Roll.objects.values('color', 'gsm', 'width', 'length'). \
+        annotate(total_units=Sum('unit')).order_by('-total_units')
     paginator = Paginator(rolls_list,10)
     page = request.GET.get('page')
     rolls = paginator.get_page(page)

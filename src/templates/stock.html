@@ -7,7 +7,6 @@
                 <div class="col-lg-1"></div>
                 <div class="col-lg-10">                           
                     <div class="block">
-                        <div class="title"><strong>Stock Rolls</strong></div>
                         {% if msg %}
                             <div class="alert alert-success" role="alert">
                                 {{ msg }}
@@ -24,14 +23,6 @@
                                     </div>
                                     <div class="col-lg-6">
                                         <div class="from-group">
-                                            {{form.roll_type}}
-                                        </div>
-                                    </div>
-                                </div>
-                                <hr>
-                                <div class="row">
-                                    <div class="col-lg-4">
-                                        <div class="from-group">
                                             {{form.color}}
                                             <a  href="{% url 'color-guide' %}" 
                                                 target="blank" 
@@ -41,11 +32,20 @@
                                             </a>
                                         </div>
                                     </div>
-                                    <div class="col-lg-2">
+                                </div>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-lg-3">
                                         <div class="from-group">
                                             {{form.gsm}}
                                         </div>
                                     </div>
+                                    <div class="col-lg-2">
+                                        <div class="from-group">
+                                            {{form.unit}}
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-1"></div>
                                     <div class="col-lg-2">
                                         <div class="from-group">
                                             {{form.width}}
@@ -58,7 +58,7 @@
                                     </div>
                                     <div class="col-lg-2">
                                         <div class="from-group">
-                                            {{form.unit}}
+                                            {{form.length}}
                                         </div>
                                     </div>
                                 </div>

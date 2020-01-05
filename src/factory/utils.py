@@ -1,47 +1,43 @@
 from .models import Roll, Bag, Waste, InventoryTransactions
 
 
-def waste_management(bag_id, roll_id, user):
+def waste_management(bag_id, roll_id, user, roll_weight, waste_weight):
+    roll_weight = int(roll_weight)
+    waste_weight = int(waste_weight)
     roll = Roll.objects.get(pk=roll_id)
     bag = Bag.objects.get(pk=bag_id)
+
+    bag.weight = roll_weight - waste_weight
+    bag.save()
 
     bag_trxn = InventoryTransactions(
         trxn_type=1,
         bag=bag,
         weight=bag.weight,
-        unit=bag.unit,
         trxn_user=user
     )
     bag_trxn.save()
 
-    bag_weight = bag.weight
-    roll_weight = roll.weight
+    waste = Waste(bag=bag, weight=waste_weight)
+    waste.save()
 
-    bag_unit = bag.unit
-    roll_unit = roll.unit
+    waste_trxn = InventoryTransactions(
+        trxn_type=2,
+        waste=waste,
+        weight = waste.weight,
+        trxn_user=user
+    )
+    waste_trxn.save()
 
-    waste_weight = round((((roll_weight/roll_unit) * bag_unit) - bag_weight),2)
-    if waste_weight > 0:
-        waste = Waste(bag=bag, weight=waste_weight)
-        waste.save()
+    roll.weight = roll.weight - roll_weight
+    roll.unit = roll.unit - 1
 
-        waste_trxn = InventoryTransactions(
-            trxn_type=2,
-            waste=waste,
-            weight = waste.weight,
-            trxn_user=user
-        )
-        waste_trxn.save()
-        
-    roll.weight = roll_weight - bag_weight - waste_weight
-    roll.unit = roll_unit - bag_unit
     roll.save()
 
     roll_use_trxn = InventoryTransactions(
         trxn_type=3,
         roll=roll,
-        weight=round(((roll_weight/roll_unit)*bag_unit),2),
-        unit=bag_unit,
+        weight=roll_weight,
         trxn_user=user
     )
     roll_use_trxn.save()

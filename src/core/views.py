@@ -81,7 +81,7 @@ def profile(request):
                 user.last_name = lastname
                 user.save()
                 msg = 'Profile Updated'
-    user = User.objects.get(username=request.user.username)
+    user = User.objects.get(username=user.username)
     avatar = Avatar.objects.get(user=user)
     template_name = 'my_profile.html'
     month_choice = get_report_dates()

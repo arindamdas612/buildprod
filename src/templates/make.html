@@ -7,7 +7,6 @@
                 <div class="col-lg-1"></div>
                 <div class="col-lg-10">                           
                     <div class="block">
-                        <div class="title"><strong>Make Bags</strong></div>
                         {% if make_form.non_field_errors  %}
                             <div id="form-error" class="alert alert-danger" role="alert">
                                 {% for err in make_form.non_field_errors %}
@@ -29,17 +28,34 @@
                                             {{make_form.roll}}
                                         </div>
                                     </div>
+                                    <div class="col-lg-3">
+                                        <div class="from-group">
+                                            {{make_form.bag_type}}
+                                        </div>
+                                    </div>
+
+                                    <div class="col-lg-3">
+                                        <div class="from-group">
+                                            <input type="number" class="form-control" placeholder="Roll weight used" name="roll_weight">
+                                        </div>
+                                    </div>
                                 </div>
                                 <hr>
                                 <div class="row">
-                                    <div class="col-lg-3">
+                                    <div class="col-lg-2">
                                         <div class="from-group">
-                                            {{make_form.weight}}
+                                            {{make_form.height}}
                                         </div>
                                     </div>
                                     <div class="col-lg-2">
                                         <div class="from-group">
-                                            {{make_form.unit}}
+                                            {{make_form.width}}
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-5"></div>
+                                    <div class="col-lg-3">
+                                        <div class="from-group">
+                                            <input type="number" class="form-control" placeholder="Waste weight" name="waste_weight">
                                         </div>
                                     </div>
                                 </div>
@@ -48,39 +64,6 @@
                                     <button type="submit" class='btn btn-secondary btn-block'>Make</button>
                                 </div>
                             </form>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-1"></div>
-            </div>
-
-            <div class="row">
-                <div class="col-lg-1"></div>
-                <div class="col-lg-10">
-                    <div class="block">
-                        <div class="title"><strong>Ship Bags</strong></div>
-                        <div class="block-body text-center">
-                            
-                            <button type="button" data-toggle="modal" data-target="#password_modal" class="btn btn-success btn-block">Ship</button>
-                            <!-- Modal-->
-                            <div id="password_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" class="modal fade text-left">
-                                <div role="document" class="modal-dialog">
-                                    <div class="modal-content">
-                                        <div class="modal-header"><strong id="exampleModalLabel" class="modal-title">Distribute Bags</strong>
-                                            <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true">×</span></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <form method="POST" action="{% url 'ship_bag' %}">
-                                                {% csrf_token %}
-                                                {{ship_form.as_p}}
-                                                <div class="form-group">       
-                                                    <input type="submit" value="Roll Out" class="btn btn-success btn-block">
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>

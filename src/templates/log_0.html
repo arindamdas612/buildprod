@@ -43,9 +43,9 @@
                                             <th>Date</th>
                                             <th>Product</th>
                                             <th>Seller</th>
-                                            <th>Width (inches)</th>
-                                            <th>Weight (Kgs)</th>
-                                            <th>Quantity</th>
+                                            <th>Width (in)</th>
+                                            <th>Weight (Kg)</th>
+                                            <th>Unit(s)</th>
                                             <th>Stocked by</th>
                                         </tr>
                                     </thead>
@@ -55,7 +55,7 @@
                                                 <td>{{transaction.trxn_timestamp|date:"d.m.Y"}}</td>
                                                 <td>
                                                     {{transaction.roll.color}} {{transaction.roll.gsm}} GSM  
-                                                    {{transaction.roll.width}}" ({{transaction.roll.roll_type}}-type)
+                                                    {{transaction.roll.width}}"
                                                 </td>
                                                 <td>{{transaction.roll.seller.name}}</td>
                                                 <td>{{transaction.roll.width}}</td>

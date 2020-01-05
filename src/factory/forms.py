@@ -1,6 +1,6 @@
 from django.forms import ModelForm
 from django.forms import forms
-from .models import Roll, Bag, Ship
+from .models import Roll, Bag, Ship, ShipCart
 
 class RollForm(ModelForm):
     class Meta:
@@ -13,9 +13,10 @@ class RollForm(ModelForm):
             .update({
                 'class': 'form-control'
             })
-        self.fields['roll_type'].widget.attrs\
+        self.fields['unit'].widget.attrs\
             .update({
-                'class': 'form-control'
+                'class': 'form-control',
+                'placeholder': 'Unit(s)',
             })
         self.fields['gsm'].widget.attrs\
             .update({
@@ -30,64 +31,61 @@ class RollForm(ModelForm):
         self.fields['width'].widget.attrs\
             .update({
                 'class': 'form-control',
-                'placeholder': 'Width',
+                'placeholder': 'Width (in)',
             })
         self.fields['weight'].widget.attrs\
             .update({
                 'class': 'form-control',
-                'placeholder': 'Weight',
+                'placeholder': 'Weight (kg)',
             })
-        self.fields['unit'].widget.attrs\
+        self.fields['length'].widget.attrs\
             .update({
                 'class': 'form-control',
-                'placeholder': 'Unit',
+                'placeholder': 'Length (m)',
+                'value': ''
             })
+       
     
 
 class BagForm(ModelForm):
     class Meta:
         model = Bag
-        exclude = ('status', 'create_timestamp', 'updated_timestamp')
+        exclude = ('weight', 'create_timestamp', 'updated_timestamp')
     
     def __init__(self, *args, **kwargs):
+        self.roll_weight = kwargs.pop('roll_weight', None)
+        self.waste_weight = kwargs.pop('waste_weight', None)
         super(BagForm, self).__init__(*args, **kwargs)
         self.fields['roll'].widget.attrs\
             .update({
                 'class': 'form-control'
             })
-        self.fields['unit'].widget.attrs\
+        self.fields['bag_type'].widget.attrs\
             .update({
-                'class': 'form-control',
-                'placeholder': 'Unit',
+                'class': 'form-control'
             })
-        self.fields['weight'].widget.attrs\
+        self.fields['height'].widget.attrs\
             .update({
                 'class': 'form-control',
-                'placeholder': 'Weight',
+                'placeholder': 'height (in)',
+            })
+        self.fields['width'].widget.attrs\
+            .update({
+                'class': 'form-control',
+                'placeholder': 'width (in)',
             })
         if self.instance:
-            self.fields['roll'].queryset = Roll.objects.filter(unit__gt=0).order_by('color', 'gsm', 'width', 'weight', 'unit')
+            self.fields['roll'].queryset = Roll.objects.filter(unit__gt=0).order_by('color', 'gsm', 'width', 'weight')
 
     def clean(self):
+        if not self.waste_weight:
+            raise forms.ValidationError('Provide Waste Weight')
+        if not self.roll_weight:
+            raise forms.ValidationError('Provide Roll weight used for production')
         super().clean()
-        data = self.cleaned_data
-        bag_unit = data['unit']
-        roll_unit = data['roll'].unit
+        
 
-        bag_weight = data['weight']
-        roll_weight = data['roll'].weight
 
-        bag_unit = data['unit']
-        roll_unit = data['roll'].unit
-
-        if bag_unit > roll_unit:
-            raise forms.ValidationError('Bag unit can not be greater than Roll Unit')
-            
-        if bag_weight > roll_weight:
-            raise forms.ValidationError('Bag weight can not be greater than Roll Weight')
-
-        if (bag_weight/bag_unit) > (roll_weight/roll_unit):
-            raise forms.ValidationError('Bag weight/unit can not be greater than Roll Weight/Unit')
 
 class ShipForm(ModelForm):
     class Meta:
@@ -106,10 +104,48 @@ class ShipForm(ModelForm):
                 'class': 'form-control'
             })
         if self.instance:
-            self.fields['bag'].queryset = Bag.objects.filter(status='STOCKED')
+            self.fields['bag'].queryset = Bag.objects.filter(weight__gt=0)
     
     def save(self, user):
         obj = super().save(commit = False)
         obj.assigned_by = user
+        obj.save()
+        return obj
+
+
+class ShipCartForm(ModelForm):
+    class Meta:
+        model = ShipCart
+        exclude = ('cart_owner', 'create_timestamp')
+
+
+    def __init__(self, *args, **kwargs):
+        super(ShipCartForm, self).__init__(*args, **kwargs)
+        self.fields['bag'].widget.attrs\
+            .update({
+                'class': 'form-control'
+            })
+        self.fields['weight'].widget.attrs\
+            .update({
+                'class': 'form-control',
+                'placeholder': 'Shipment weight'
+            })
+        self.fields['pricing'].widget.attrs\
+            .update({
+                'class': 'form-control'
+            })
+        if self.instance:
+            self.fields['bag'].queryset = Bag.objects.filter(weight__gt=0, status='stocked')
+    
+    def clean(self):
+        super().clean()
+        data = self.cleaned_data
+        if data['weight'] > data['bag'].weight:
+            raise forms.ValidationError('Shippment weight cannot excced bag weight')
+        
+    
+    def save(self, user):
+        obj = super().save(commit = False)
+        obj.cart_owner = user
         obj.save()
         return obj

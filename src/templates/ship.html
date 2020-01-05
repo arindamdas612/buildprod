@@ -1,0 +1,75 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <section class="no-padding-top">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-1"></div>
+                <div class="col-lg-10">
+                    <p>
+                        <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                            Shopping cart
+                        </button>
+                    </p>
+                    <div class="collapse" id="collapseExample">
+                        <div class="card card-body">
+                            {% if user_cart %}  
+                            
+                            {% else %}
+                                no items in the Cart!!!
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-1"></div>
+            </div>
+
+
+            <div class="row">
+                <div class="col-lg-1"></div>
+                <div class="col-lg-10">                           
+                    <div class="block">
+                        <div class="block-body">
+                            {% if form.non_field_errors  %}
+                                <div id="form-error" class="alert alert-danger" role="alert">
+                                    {% for err in form.non_field_errors %}
+                                        <p class="form-error">{{ err }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <form method="POST" action="{% url 'ship_bag' %}">
+                                {%csrf_token%}
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="from-group">
+                                            {{form.bag}}
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="from-group">
+                                            {{form.weight}}
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="from-group">
+                                            {{form.pricing}}
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <button type="submit" class='btn btn-warning btn-block'>Add to Cart</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-1"></div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

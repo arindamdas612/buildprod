@@ -4,7 +4,7 @@ import xlsxwriter
 
 from django.utils.timezone import get_current_timezone
 
-from django.db.models import Sum
+from django.db.models import Sum, Count
 from xlsxwriter.workbook import Workbook
 
 from factory.models import Roll, InventoryTransactions
@@ -69,7 +69,7 @@ def get_report_data(period):
         row['product'] = trxn.roll.color + ' ' + str(trxn.roll.gsm) + 'GSM ' + str(round(trxn.roll.width)) + '"'
         row['width'] = trxn.roll.width
         row['weight'] = trxn.weight
-        row['unit'] = trxn.unit
+        row['length'] = trxn.roll.length
         inward.append(row)
         sl_no = sl_no + 1 
 
@@ -111,7 +111,7 @@ def get_report_data(period):
         sl_no = sl_no + 1 
 
     stock_qs = Roll.objects.values('color', 'gsm', 'width', 'roll_type'). \
-        annotate(total_units=Sum('unit')).order_by('roll_type', '-total_units')
+        annotate(total_units=Count('id')).order_by('roll_type', '-total_units')
     stock = []
     sl_no = 1
     for trxn in stock_qs:
@@ -171,7 +171,7 @@ def get_report(data):
         'Product',
         'Width (inch)',
         'Weight (Kg)',
-        'Unit'
+        'Length (m)'
     ]
     for header in header_column:
         inward_sheet.write(cur_row, header_column.index(header) , header, header_format)
@@ -184,7 +184,7 @@ def get_report(data):
         inward_sheet.write(cur_row,  3, row['product'],body_format_1)
         inward_sheet.write(cur_row,  4, row['width'],body_format_2)
         inward_sheet.write(cur_row,  5, row['weight'], body_format_2)
-        inward_sheet.write(cur_row,  6, row['unit'], body_format_2)
+        inward_sheet.write(cur_row,  6, row['length'], body_format_2)
         cur_row = cur_row + 1
 
     # TAB - 2
