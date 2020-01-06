@@ -14,7 +14,40 @@
                     <div class="collapse" id="collapseExample">
                         <div class="card card-body">
                             {% if user_cart %}  
-                            
+                                {% for cart_item in user_cart %}
+                                    <div class="row">
+                                        <div class="col-2">
+                                            {{cart_item.bag.height}} X {{cart_item.bag.width}}
+                                        </div>
+                                        <div class="col-1">
+                                            {{cart_item.bag.bag_type}}
+                                        </div>
+                                        <div class="col-1">
+                                            {{cart_item.bag.roll.color}}
+                                        </div>
+                                        <div class="col-2">
+                                            {{cart_item.bag.roll.gsm}} GSM
+                                        </div>
+                                        <div class="col-2">
+                                            {{cart_item.weight}} Kg
+                                        </div>
+                                        <div class="col-2">
+                                            {{cart_item.pricing}} Priced
+                                        </div>
+                                        <div class="col-2">
+                                            <a class="btn btn-danger btn-sm" href=""><i class="fa fa-bullseye" aria-hidden="true"></i> Remove</a>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                {% endfor %}
+                                <div class="row">
+                                    <div class="col-6">
+                                        <a href="" class="btn btn-danger btn-block">Empty Cart</a>
+                                    </div>
+                                    <div class="col-6">
+                                        <a href="" class="btn btn-success btn-block">Price Shipping Cart</a>
+                                    </div>
+                                </div>
                             {% else %}
                                 no items in the Cart!!!
                             {% endif %}
