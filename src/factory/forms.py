@@ -1,6 +1,6 @@
 from django.forms import ModelForm
 from django.forms import forms
-from .models import Roll, Bag, Ship, ShipCart
+from .models import Roll, Bag, Ship, ShipCart, PackingSlips
 
 class RollForm(ModelForm):
     class Meta:
@@ -50,7 +50,7 @@ class RollForm(ModelForm):
 class BagForm(ModelForm):
     class Meta:
         model = Bag
-        exclude = ('weight', 'create_timestamp', 'updated_timestamp')
+        exclude = ('status', 'weight', 'create_timestamp', 'updated_timestamp')
     
     def __init__(self, *args, **kwargs):
         self.roll_weight = kwargs.pop('roll_weight', None)
@@ -99,10 +99,6 @@ class ShipForm(ModelForm):
             .update({
                 'class': 'form-control'
             })
-        self.fields['distributor'].widget.attrs\
-            .update({
-                'class': 'form-control'
-            })
         if self.instance:
             self.fields['bag'].queryset = Bag.objects.filter(weight__gt=0)
     
@@ -147,5 +143,49 @@ class ShipCartForm(ModelForm):
     def save(self, user):
         obj = super().save(commit = False)
         obj.cart_owner = user
+        obj.save()
+        return obj
+
+class PackingSlipForm(ModelForm):
+    class Meta:
+        model = PackingSlips
+        exclude = ('basic_weight', 'color_weight', 'basic_amount', 'color_amount', 'total_amount', 'prepared_by', 'create_timestamp')
+
+
+    def __init__(self, *args, **kwargs):
+        super(PackingSlipForm, self).__init__(*args, **kwargs)
+        self.fields['party'].widget.attrs\
+            .update({
+                'class': 'form-control',
+            })
+        self.fields['basic_rate'].widget.attrs\
+            .update({
+                'class': 'form-control',
+                'placeholder': 'Basic rate per Kg',
+            })
+        self.fields['color_rate'].widget.attrs\
+            .update({
+                'class': 'form-control',
+                'placeholder': 'Color rate per Kg',
+            })
+        self.fields['print_amount'].widget.attrs\
+            .update({
+                'class': 'form-control',
+                'placeholder': 'Printing Charges',
+            })
+        self.fields['fare_amount'].widget.attrs\
+            .update({
+                'class': 'form-control',
+                'placeholder': 'Fare Charges',
+            })
+        self.fields['advance_amount'].widget.attrs\
+            .update({
+                'class': 'form-control',
+                'placeholder': 'Advance (if any)',
+            })
+    
+    def save(self, user):
+        obj = super().save(commit = False)
+        obj.prepared_by = user
         obj.save()
         return obj

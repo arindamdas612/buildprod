@@ -58,26 +58,6 @@ class Waste(models.Model):
     weight = models.FloatField()
     create_timestamp = models.DateTimeField(auto_now_add=True)
 
-
-class Ship(models.Model):
-
-    bag = models.ForeignKey(Bag, on_delete=models.CASCADE)
-    distributor = models.ForeignKey(Distributor, on_delete=models.CASCADE)
-    assingment_timestamp = models.DateTimeField(auto_now_add=True)
-    assigned_by = models.ForeignKey(User, on_delete=models.CASCADE)
-
-
-class InventoryTransactions(models.Model):
-    trxn_type = models.IntegerField()
-    roll = models.ForeignKey(Roll, on_delete=models.CASCADE, null=True)
-    bag = models.ForeignKey(Bag, on_delete=models.CASCADE, null=True)
-    ship = models.ForeignKey(Ship, on_delete=models.CASCADE, null=True)
-    waste = models.ForeignKey(Waste, on_delete=models.CASCADE, null=True)
-    weight = models.FloatField()
-    unit = models.IntegerField(null=True)
-    trxn_user = models.ForeignKey(User, on_delete=models.CASCADE)
-    trxn_timestamp = models.DateTimeField(auto_now_add=True)
-
 class ShipCart(models.Model):
     class Pricing(models.TextChoices):
         BASIC = 'basic', _('Basic')
@@ -91,3 +71,49 @@ class ShipCart(models.Model):
 
     def __str__(self):
         return f"{self.bag}"
+
+class PackingSlips(models.Model):
+    party = models.ForeignKey(Distributor, on_delete=models.CASCADE)
+    
+    basic_rate = models.FloatField(null=True)
+    color_rate = models.FloatField(null=True)
+    basic_weight = models.FloatField(null=True)
+    color_weight = models.FloatField(null=True)
+    
+    basic_amount = models.FloatField(null=True)
+    color_amount = models.FloatField(null=True)
+    print_amount = models.FloatField(null=True)
+    fare_amount = models.FloatField(null=True)
+    advance_amount = models.FloatField(null=True)
+    total_amount = models.FloatField(null=True)
+
+    prepared_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    create_timestamp = models.DateTimeField(auto_now_add=True)
+
+
+class Ship(models.Model):
+
+    class Pricing(models.TextChoices):
+        BASIC = 'basic', _('Basic')
+        COLUR = 'colour', _('Colour')
+
+    package = models.ForeignKey(PackingSlips, on_delete=models.CASCADE)
+    bag = models.ForeignKey(Bag, on_delete=models.CASCADE)
+    weight = models.FloatField(default=0.00)
+    pricing = models.CharField(max_length=10, choices=Pricing.choices, default=Pricing.BASIC)
+    assingment_timestamp = models.DateTimeField(auto_now_add=True)
+
+class InventoryTransactions(models.Model):
+    trxn_type = models.IntegerField()
+    roll = models.ForeignKey(Roll, on_delete=models.CASCADE, null=True)
+    bag = models.ForeignKey(Bag, on_delete=models.CASCADE, null=True)
+    ship = models.ForeignKey(Ship, on_delete=models.CASCADE, null=True)
+    waste = models.ForeignKey(Waste, on_delete=models.CASCADE, null=True)
+    weight = models.FloatField()
+    unit = models.IntegerField(null=True)
+    trxn_user = models.ForeignKey(User, on_delete=models.CASCADE)
+    trxn_timestamp = models.DateTimeField(auto_now_add=True)
+    
+
+
+

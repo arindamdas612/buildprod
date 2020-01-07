@@ -6,9 +6,9 @@ from django.utils.timezone import get_current_timezone
 from django.db.models import Sum, Count
 
 from core.models import Avatar
-from .forms import RollForm, BagForm, ShipForm, ShipCartForm
-from .models import Waste, Roll, Bag, Ship, InventoryTransactions, ShipCart
-from .utils import waste_management
+from .forms import RollForm, BagForm, ShipForm, ShipCartForm, PackingSlipForm
+from .models import Waste, Roll, Bag, Ship, InventoryTransactions, ShipCart, PackingSlips
+from .utils import waste_management, ship_package
 from core.reports import get_report_dates
 
 # Create your views here.
@@ -58,9 +58,13 @@ def make(request):
         make_form = BagForm(request.POST, roll_weight=roll_weight, waste_weight=waste_weight)
         if make_form.is_valid():
             bag = make_form.save()
+            bag.status = 'stocked'
+            bag.save()
             waste_management(bag.id, bag.roll.id, request.user, roll_weight, waste_weight)
             msg = 'Bag created and stocked into inventory!!!'
             make_form = BagForm()
+        else:
+            print(make_form.errors)
     template_name = 'make.html'
     month_choice = get_report_dates()
     context = {
@@ -127,6 +131,14 @@ def price_shipments(request):
     user = User.objects.get(username=request.user.username)
     avatar = Avatar.objects.get(user=user)
 
+    form = PackingSlipForm(request.POST or None)
+
+    if request.method == 'POST':
+        if form.is_valid():
+            package = form.save(user)
+            ship_package(ps_id=package.id, user=user)
+            form = PackingSlipForm()
+
     basic_weight = 0
     basic_items = ShipCart.objects.filter(pricing='basic', cart_owner=user)
     for basic_item in basic_items:
@@ -151,6 +163,7 @@ def price_shipments(request):
         'cart_count': cart_count,
         'basic_weight': basic_weight,
         'color_weight': color_weight,
+        'form': form,
     }
     return render(request, template_name, context=context) 
 

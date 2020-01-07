@@ -25,5 +25,46 @@
             </div>
             
         </div>
+        <form method="POST" action="{% url 'price_shipments' %}">
+            {% csrf_token %}
+            <div class="block">
+                <div class="row">
+                    <div class="col-1"></div>
+                    <div class="col-4">
+                        {{form.party}}
+                    </div>
+                    <div class="col-3">
+                        {{form.basic_rate}}
+                    </div>
+                    <div class="col-3">
+                        {{form.color_rate}}
+                    </div>
+                    <div class="col-1"></div>
+                </div>
+            </div>
+            <div class="block">
+                <div class="row">
+                    <div class="col-4">
+                        {{form.print_amount}}
+                    </div>
+                    <div class="col-4">
+                        {{form.fare_amount}}
+                    </div>
+                    <div class="col-4">
+                        {{form.advance_amount}}
+                    </div>
+                </div>
+            </div>
+            <div class="block">
+                <div class="row">
+                    <div class="col-4"></div>
+                    <div class="col-4">
+                        <input type="submit" class="btn btn-light btn-block">
+                    </div>
+                    <div class="col-4"></div>
+                </div>
+            </div>
+        </form>
+        </div>
     </section>
 {% endblock %}
