@@ -77,27 +77,6 @@ def make(request):
 
 @login_required
 def ship(request):
-    """
-    if request.method == 'POST':
-        form = ShipForm(request.POST)
-        print(form.is_valid())
-        if form.is_valid():
-            shipment = form.save(request.user)
-            shipped_bag = shipment.bag
-            shipped_bag.status = 'SHIPPED'
-            shipped_bag.save()
-
-            ship_trxn = InventoryTransactions(
-                trxn_type=4,
-                ship=shipment,
-                weight = shipped_bag.weight,
-                unit=shipped_bag.unit,
-                trxn_user = request.user
-            )
-            ship_trxn.save()
-    
-    return redirect('make_bag')
-    """
     form = ShipCartForm(request.POST or None)
     user = User.objects.get(username=request.user.username)
     avatar = Avatar.objects.get(user=user)
@@ -124,6 +103,56 @@ def ship(request):
     }
     return render(request, template_name, context=context) 
 
+@login_required
+def delete_ship_cart(request, cart_id):
+    if cart_id == 0:
+        cart_items = ShipCart.objects.filter(cart_owner=request.user)
+        for item in cart_items:
+            bag = item.bag
+            bag.status = 'stocked'
+            bag.save()
+            item.delete()
+    else:
+        cart_item = ShipCart.objects.get(pk=cart_id)
+        bag = cart_item.bag
+        bag.status = 'stocked'
+        bag.save()
+        cart_item.delete()
+    
+    return redirect('ship_bag')
+
+
+@login_required
+def price_shipments(request):
+    user = User.objects.get(username=request.user.username)
+    avatar = Avatar.objects.get(user=user)
+
+    basic_weight = 0
+    basic_items = ShipCart.objects.filter(pricing='basic', cart_owner=user)
+    for basic_item in basic_items:
+        basic_weight+=basic_item.weight
+    
+    color_weight = 0
+    color_items = ShipCart.objects.filter(pricing='colour', cart_owner=user)
+    for color_item in color_items:
+        color_weight+=color_item.weight
+    
+
+    user_cart = ShipCart.objects.filter(cart_owner=user)
+    cart_count = ShipCart.objects.filter(cart_owner=user).count()
+    template_name = 'shipment_pricing.html'
+    month_choice = get_report_dates()
+    context = {
+        'title': 'Factory | Pricing',
+        'section_title': 'Shipment Pricing',
+        'avatar_path': 'img/profile_pics/'+ avatar.name + '.png',
+        'month_choice': month_choice,
+        'user_cart': user_cart,
+        'cart_count': cart_count,
+        'basic_weight': basic_weight,
+        'color_weight': color_weight,
+    }
+    return render(request, template_name, context=context) 
 
 @login_required
 def roll_warehouse(request):
@@ -145,7 +174,7 @@ def roll_warehouse(request):
         'section_title': 'Rolls',
         'avatar_path': 'img/profile_pics/'+ avatar.name + '.png',
         'rolls': rolls,
-        'month_choice': month_choice
+        'month_choice': month_choice,
     }
     return render(request, template_name, context=context) 
 
