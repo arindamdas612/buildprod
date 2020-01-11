@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=<device-width>, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>{{ps_no}}</title>
+	<style>
+
+		.items td, th {
+			border: 1px solid black;
+			vertical-align: middle;
+			padding: 3px;
+		}
+		table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+		.right-elem {
+			text-align: right;
+		}
+		.left-elem {
+			text-align: right;
+		}
+		.center-elem {
+			text-align: center;
+		}
+		.amount {
+			width: 70px;
+		}
+	</style>
+</head>
+<body>
+
+	<table>
+		<tr>
+			<td style="text-align: center;">
+				<h1><strong>Packing Slip</strong></h1>
+			</td>
+		</tr>
+	</table>
+
+	<table>
+		<tr>
+			<td>
+				Party Name: <strong>{{package.party.name}}</strong>
+			</td>
+			<td class="right-elem">
+				Date: <strong>{{package.create_timestamp|date:"d.m.Y"}}</strong>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				
+			</td>
+			<td class="right-elem">
+				PS No: <strong>{{ps_no}}</strong>
+			</td>
+		</tr>
+	</table>
+
+	<hr>
+
+	<table class="items">
+		<thead>
+			<tr>
+				<th>#</th>
+				<th>Size</th>
+				<th>GSM</th>
+				<th>Color</th>
+				<th>Weight (Kg)</th>
+				<th>Pricing</th>
+				<th>Unit</th>
+				<th>Style</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for item in shippments %}
+				<tr>
+					<th>{{ forloop.counter }}</th>
+					<td class="center-elem">
+						{{item.bag.height|floatformat:0}} 
+						X 
+						{{item.bag.width|floatformat:0}} 
+					</td>
+					<td class="center-elem">{{item.bag.roll.gsm}}</td>
+					<td>{{item.bag.roll.color}}</td>
+					<td class="right-elem">{{item.weight|floatformat:3}}</td>
+					<td>{{item.pricing}}</td>
+					<td class="right-elem">1</td>
+					<td>{{item.bag.bag_type}}</td>
+				</tr>
+			{% endfor %}
+			<tr>
+				<td colspan="4" class="right-elem">
+					Total Basic Priced Weight
+					{% if package.basic_weight == 0%}
+						-
+					{% else %}
+						<strong>{{package.basic_weight}} Kg</strong>
+					{% endif %}
+				</td>
+				<td colspan="4">
+					Total Coloured Priced Weight
+					{% if package.color_weight == 0%}
+						-
+					{% else %}
+						<strong>{{package.color_weight}} Kg</strong>
+					{% endif %}
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	<hr>
+	<table>
+		<tr>
+			<td>
+				Basic  Rate per KG:
+				{% if package.basic_rate == 0%}
+					-
+				{% else %}
+					<strong>Rs. {{basic_rate}}</strong>
+				{% endif %}
+			</td>
+			<td class="right-elem">
+				Basic Amount 
+			</td>
+			<td class="right-elem amount">
+				{% if package.basic_amount == 0%}
+					-
+				{% else %}
+					Rs. {{basic_amount}}
+				{% endif %}
+			</td>
+		</tr>
+		<tr>
+			<td>
+				Colour Rate per KG: 
+				{% if package.color_rate == 0%}
+					-
+				{% else %}
+					<strong>Rs. {{color_rate}}</strong>
+				{% endif %}
+			</td>
+			<td class="right-elem">
+				Colour Amount 
+			</td>
+			<td class="right-elem amount">
+				{% if package.color_amount == 0%}
+					-
+				{% else %}
+					Rs. {{color_amount}}
+				{% endif %}
+			</td>
+		</tr>
+		<tr>
+			<td>
+				
+			</td>
+			<td class="right-elem">
+				Print Charges 
+			</td>
+			<td class="right-elem amount">
+				{% if package.print_amount == 0%}
+					-
+				{% else %}
+					Rs. {{print_amount}}
+				{% endif %}
+			</td>
+		</tr>
+		<tr>
+			<td>
+				
+			</td>
+			<td class="right-elem">
+				Fares
+			</td>
+			<td class="right-elem amount">
+				{% if package.fare_amount == 0%}
+					-
+				{% else %}
+					Rs. {{fare_amount}}
+				{% endif %}
+			</td>
+		</tr>
+		<tr>
+			<td>
+				
+			</td>
+			<td class="right-elem">
+				Advance
+			</td>
+			<td class="right-elem amount">
+				{% if package.advance_amount == 0%}
+					-
+				{% else %}
+					Rs. {{advance_amount}}
+				{% endif %}
+			</td>
+		</tr>
+		<tr>
+			<td>
+				
+			</td>
+			<td class="right-elem">
+				Total Payable Amount
+			</td>
+			<td class="right-elem amount">
+				Rs. {{total_amount}}
+			</td>
+		</tr>
+	</table>
+	
+</body>
+</html>

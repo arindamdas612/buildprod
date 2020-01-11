@@ -1,4 +1,4 @@
-from factory.models import InventoryTransactions
+from factory.models import InventoryTransactions, PackingSlips
 import datetime
 
 from django.utils.timezone import get_current_timezone
@@ -28,12 +28,12 @@ def get_months():
     return months
 
 
-def get_days():
+def get_days(num):
     days = []
     st = datetime.datetime.now(tz=get_current_timezone())
     prev_day = st
     days.append(prev_day)
-    for i in range(0,6):
+    for i in range(0,num+1):
         prev_day = prev_day - datetime.timedelta(days=1)
         days.append(prev_day)
     
@@ -115,7 +115,7 @@ def get_chart1_data():
     type_1_production = []
     type_1_waste = []
 
-    days = get_days()
+    days = get_days(5)
 
     for day in days:
         type_1_labels.append(day.strftime('%d/%m'))
@@ -174,11 +174,11 @@ def get_chart2_data():
     type_2_label = []
     type_2_data = []
     rolls_stocked = InventoryTransactions.objects.values('roll__gsm', 'roll__width', 'roll__color') \
-        .annotate(total_unit=Sum('unit')) \
+        .annotate(total_unit=Sum('weight')) \
         .filter(trxn_type=0) 
 
     bags_produced = InventoryTransactions.objects.values('bag__roll__gsm', 'bag__roll__width', 'bag__roll__color') \
-        .annotate(total_unit=Sum('unit')) \
+        .annotate(total_unit=Sum('weight')) \
         .filter(trxn_type=1) 
 
     for roll in rolls_stocked:
@@ -186,17 +186,21 @@ def get_chart2_data():
 
         plot['label'] = roll['roll__color'] + ' ' + str(roll['roll__gsm']) + 'GSM ' + str(roll['roll__width']) + "in"
         plot['backgroundColor'] = roll['roll__color']
+        plot['hoverBackgroundColor'] = roll['roll__color']
+        plot['hoverBorderColor'] = 'black'
+        plot['hoverBorderWidth'] = 2
+
     
         data = {}
 
-        data['x'] = roll['total_unit']
+        data['x'] = round(roll['total_unit'])
         data['y'] = 0
         for bag in bags_produced:
             if bag['bag__roll__color'] == roll['roll__color'] and \
             bag['bag__roll__gsm'] == roll['roll__gsm'] and \
             bag['bag__roll__width'] == roll['roll__width']:
-                data['y'] = bag['total_unit']
-        data['r'] = round(roll['roll__width']/3,2)
+                data['y'] = round(bag['total_unit'])
+        data['r'] = round(roll['roll__width']/4,2)
 
         plot['data'] = [data]
 
@@ -210,4 +214,32 @@ def get_chart2_data():
     data = {
         'data': type_2_data 
     }
+    return data
+
+def get_chart3_data():
+    type_3_labels = []
+    type_3_data = []
+
+    days = get_days(8)
+    for day in days:
+        type_3_labels.append(day.strftime('%d/%m'))
+        ed = day.replace(hour=23, minute=59, second=59, microsecond=0)
+        st = ed.replace(hour=0, minute=0, second=0, microsecond=0)
+
+        sales=PackingSlips.objects.  \
+            annotate(day=TruncDay('create_timestamp')). \
+            values('day'). \
+            filter(create_timestamp__lte=ed,create_timestamp__gte=st). \
+            annotate(amount=Sum('total_amount'))
+
+        if sales:
+            for trxn in sales:
+                type_3_data.append(round(trxn['amount']))
+        else:
+            type_3_data.append(0)
+    
+    data = {
+            'label': type_3_labels,
+            'data': type_3_data
+        }
     return data

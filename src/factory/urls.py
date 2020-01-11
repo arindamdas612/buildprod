@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import stock, make, ship, delete_ship_cart, price_shipments
+from .views import stock, make, ship, delete_ship_cart, price_shipments, package_history, download_packingslip
 from .views import roll_warehouse, bag_warehouse, waste_warehouse
 from .views import inward_log, production_log, outward_log, waste_log
 
@@ -10,6 +10,8 @@ urlpatterns = [
     path('ship/', ship, name='ship_bag'),
     path('ship/delete/<int:cart_id>', delete_ship_cart, name='delete_ship_cart'),
     path('shippments/pricing', price_shipments, name='price_shipments'),
+    path('package/history', package_history, name='package_history'),
+    path('package/download/<int:package_id>', download_packingslip, name='download_packingslip'),
     path('warehouse-rolls/', roll_warehouse, name='roll_activites'),
     path('warehoue-bags/', bag_warehouse, name='bag_activites'),
     path('warehouse-wastes/', waste_warehouse, name='waste_activites'),

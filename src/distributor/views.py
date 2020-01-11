@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from core.reports import get_report_dates
 
 from core.models import Avatar
+from factory.models import ShipCart
 
 # Create your views here.
 
@@ -37,6 +38,8 @@ def distributor(request):
     user = User.objects.get(username=request.user.username)
     avatar = Avatar.objects.get(user=user)
     month_choice = get_report_dates()
+    user_cart = ShipCart.objects.filter(cart_owner=user)
+    cart_count = ShipCart.objects.filter(cart_owner=user).count()
     context = {
         'title': 'Parties',
         'section_title': 'Party - All',
@@ -45,6 +48,8 @@ def distributor(request):
         'msg': msg,
         'avatar_path': 'img/profile_pics/'+ avatar.name + '.png',
         'month_choice': month_choice,
+        'user_cart': user_cart,
+        'cart_count': cart_count,
     }
     return render(request, template_name, context=context)
 

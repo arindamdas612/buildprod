@@ -91,7 +91,7 @@
     </section>
     <section>
         <div class="container-fluid">
-            <div class="row">
+            <div class="row d-flex align-items-stretch">
                 <div class="col-lg-6">
                     <div class="bar-chart block chart">
                         <div class="title"><strong>Roll-Bag-Waste [Monthly]</strong></div>
@@ -113,12 +113,20 @@
     </section>
     <section>
         <div class="container-fluid">
-            <div class="row">
-                <div class="col-lg-12">
+            <div class="row d-flex align-items-stretch">
+                <div class="col-lg-6">
                     <div class="block chart">
                         <div class="title"><strong>Rolls Vs Bags</strong></div>
                         <div class="chart">
                             <canvas id="type-2-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="block chart">
+                        <div class="title"><strong>Sales</strong></div>
+                        <div class="chart">
+                            <canvas id="type-3-chart"></canvas>
                         </div>
                     </div>
                 </div>
@@ -134,14 +142,16 @@
 {% block js %}
     <script>
         var endpoint = 'api/chart-data';
-
+        var api_data = [];
         $.ajax({
             method: 'GET',
             url: endpoint,
             success: function(data){
+                api_data = data;
                 make_type_0(data[0]);
                 make_type_1(data[1]);
                 make_type_2(data[2]);
+                make_type_3(data[3]);
             },
             error: function(error_data){
                 console.log('Cannot fetch chart data')
@@ -155,18 +165,19 @@
                 options: {
                     scales: {
                         xAxes: [{
-                            display: false,
+                            display: true,
                             gridLines: {
-                                color: '#eee'
+                                color: 'transparent'
                             }
                         }],
                         yAxes: [{
                             display: false,
                             gridLines: {
-                                color: '#eee'
+                                color: 'transparent'
                             }
                         }]
                     },
+                    
                 },
                 data: {
                     labels: type_0_set.label,
@@ -279,15 +290,15 @@
                 options: {
                     scales: {
                         xAxes: [{
-                            display: false,
+                            display: true,
                             gridLines: {
-                                color: '#eee'
+                                color: 'transparent'
                             }
                         }],
                         yAxes: [{
                             display: false,
                             gridLines: {
-                                color: '#eee'
+                                color: 'transparent'
                             }
                         }]
                     },
@@ -406,10 +417,19 @@
                     scales: {
                         xAxes: [{
                             display: true,
+                            gridLines: {
+                                color: 'transparent'
+                            }
                             
                         }],
                         yAxes: [{
+                            ticks: {
+                                min: 0
+                            },
                             display: true,
+                            gridLines: {
+                                color: 'transparent'
+                            }
                             
                         }]
                     },
@@ -419,6 +439,66 @@
                 },
                 data: {
                     datasets: type_2_set.data
+                }
+            });
+        }
+
+        function make_type_3(type_3_set){
+            var legendState = true;
+            if ($(window).outerWidth() < 576) {
+                legendState = false;
+            }
+            console.log(type_3_set)
+            var TYPE3    = $('#type-3-chart');
+            var type_3 = new Chart(TYPE3, {   
+                type: 'line',
+                options: {
+                    legend: {labels:{fontColor:"#777", fontSize: 12}},
+                    scales: {
+                        xAxes: [{
+                            display: false,
+                            gridLines: {
+                                color: 'transparent'
+                            }
+                        }],
+                        yAxes: [{
+                            ticks: {
+                                min: 0
+                            },
+                            display: true,
+                            gridLines: {
+                                color: 'transparent'
+                            }
+                        }]
+                    },
+                },
+                data: {
+                    labels: type_3_set.label,
+                    datasets: [
+                        {
+                            label: "Sales",
+                            fill: true,
+                            lineTension: 0.4,
+                            backgroundColor: "rgba(134, 77, 217, 0.88)",
+                            borderColor: "rgba(134, 77, 217, 088)",
+                            borderCapStyle: 'butt',
+                            borderDash: [],
+                            borderDashOffset: 0.0,
+                            borderJoinStyle: 'miter',
+                            borderWidth: 1,
+                            pointBorderColor: "rgba(134, 77, 217, 0.88)",
+                            pointBackgroundColor: "#fff",
+                            pointBorderWidth: 1,
+                            pointHoverRadius: 5,
+                            pointHoverBackgroundColor: "rgba(134, 77, 217, 0.88)",
+                            pointHoverBorderColor: "rgba(134, 77, 217, 0.88)",
+                            pointHoverBorderWidth: 2,
+                            pointRadius: 1,
+                            pointHitRadius: 10,
+                            data: type_3_set.data,
+                            spanGaps: false
+                        }
+                    ]
                 }
             });
         }

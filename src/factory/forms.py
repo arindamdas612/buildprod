@@ -87,27 +87,6 @@ class BagForm(ModelForm):
 
 
 
-class ShipForm(ModelForm):
-    class Meta:
-        model = Ship
-        exclude = ('assingment_timestamp', 'assigned_by')
-
-
-    def __init__(self, *args, **kwargs):
-        super(ShipForm, self).__init__(*args, **kwargs)
-        self.fields['bag'].widget.attrs\
-            .update({
-                'class': 'form-control'
-            })
-        if self.instance:
-            self.fields['bag'].queryset = Bag.objects.filter(weight__gt=0)
-    
-    def save(self, user):
-        obj = super().save(commit = False)
-        obj.assigned_by = user
-        obj.save()
-        return obj
-
 
 class ShipCartForm(ModelForm):
     class Meta:

@@ -8,10 +8,10 @@ from rest_framework.views import APIView
 
 from django.contrib.auth.models import User
 from .models import Avatar
-from factory.models import InventoryTransactions
+from factory.models import InventoryTransactions, ShipCart
 
 from .analytics import get_weight_distribution
-from .utils import get_chart0_data, get_chart1_data, get_chart2_data
+from .utils import get_chart0_data, get_chart1_data, get_chart2_data, get_chart3_data
 from .reports import get_report_dates, get_report_data, get_report
 # Create your views here.
 
@@ -23,6 +23,8 @@ def dashboard(request):
     avatar = Avatar.objects.get(user=user)
     tab_data = get_weight_distribution()
     month_choice = get_report_dates()
+    user_cart = ShipCart.objects.filter(cart_owner=user)
+    cart_count = ShipCart.objects.filter(cart_owner=user).count()
     context = {
         'title': 'Dashboard',
         'section_title': 'Dashboard',
@@ -38,6 +40,8 @@ def dashboard(request):
         'waste_weight': tab_data['waste_weight'],
         'waste_percent': tab_data['waste_percent'],
         'month_choice': month_choice,
+        'user_cart': user_cart,
+        'cart_count': cart_count,
     }
     return render(request, template_name, context=context)
 
@@ -85,6 +89,8 @@ def profile(request):
     avatar = Avatar.objects.get(user=user)
     template_name = 'my_profile.html'
     month_choice = get_report_dates()
+    user_cart = ShipCart.objects.filter(cart_owner=user)
+    cart_count = ShipCart.objects.filter(cart_owner=user).count()
     context = {
         'title': 'Profile',
         'section_title': 'My Profile',
@@ -96,7 +102,8 @@ def profile(request):
         'message': msg,
         'avatar_path': 'img/profile_pics/'+ avatar.name + '.png',
         'month_choice': month_choice,
-        
+        'user_cart': user_cart,
+        'cart_count': cart_count,   
     }
     return render(request, template_name, context=context)
 
@@ -159,9 +166,10 @@ class DashboardChart(APIView):
         type_0 = get_chart0_data()
         type_1 = get_chart1_data()
         type_2 = get_chart2_data()
+        type_3 = get_chart3_data()
 
 
-        return Response([type_0, type_1, type_2])
+        return Response([type_0, type_1, type_2, type_3])
 
 
 

@@ -1,0 +1,66 @@
+{% extends "layout.html" %}
+{% block content %}
+    <section class="no-padding-top">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-1"></div>
+                <div class="col-10">                           
+                    <div class="block">
+                        {% if packages %}
+                            <div class="container-fluid">
+                                <table class="table table-striped table-hover table-responsive-sm table-responsive-md" id="rolls">
+                                    <thead>
+                                        <tr class="text-center">
+                                            <th><i class="fa fa-slack" aria-hidden="true"></i></th>
+                                            <th>Date</th>
+                                            <th>Party Name</th>
+                                            <th>Package Weight (Kg)</th>
+                                            <th>Package Value (<i class="fa fa-inr" aria-hidden="true"></i>)</th>
+                                            <th><i class="fa fa-download" aria-hidden="true"></i> Packing Slip</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for package in packages %}
+                                            <tr>
+                                                <td>{{package.ps_no}}</td>
+                                                <td>{{package.create_date|date:"d.m.Y"}}</td>
+                                                <td>{{package.party_name}}</td>
+                                                <td class="text-right">{{package.package_weight|floatformat:3}}</td>
+                                                <td class="text-right">{{package.package_value}}</td>
+                                                <td class="text-center  "><a href="{% url 'download_packingslip' package_id=package.id %}"><i class="fa fa-file-text" aria-hidden="true"></i></a></td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                <hr>
+                                <!--Pagination-->
+                                <div class="pagination">
+                                    <span class="step-links">
+                                    {% if packages.has_previous %}
+                                        <a href="?page=1" class="btn btn-primary">&laquo; first</a>
+                                        <a href="?page={{ packages.previous_page_number }}" class="btn btn-primary">previous</a>
+                                    {% endif %}
+
+                                    <span class="current">
+                                        Page {{ packages.number }} of {{ packages.paginator.num_pages }}.
+                                    </span>
+
+                                    <span class="step-links">
+                                    {% if rolls.has_next %}
+                                        <a href="?page={{ packages.next_page_number }}" class="btn btn-primary">next</a>
+                                        <a href="?page={{ packages.paginator.num_pages }}" class="btn btn-primary">last &raquo;</a>
+                                    {% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                        {% else %}
+                            <p>Roll Data not available!!</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-1"></div>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}

@@ -8,6 +8,7 @@ from core.reports import get_report_dates
 import re
 
 from core.models import Avatar
+from factory.models import ShipCart
 
 # Create your views here.
 
@@ -50,7 +51,7 @@ def staff(request):
 
     template_name = 'staff.html'
     
-    staff_list = User.objects.filter(is_staff=False)
+    staff_list = User.objects.filter(is_staff=False).order_by('-id')
     paginator = Paginator(staff_list,4)
 
     page = request.GET.get('page')
@@ -58,6 +59,8 @@ def staff(request):
     user = User.objects.get(username=request.user.username)
     avatar = Avatar.objects.get(user=user)
     month_choice = get_report_dates()
+    user_cart = ShipCart.objects.filter(cart_owner=user)
+    cart_count = ShipCart.objects.filter(cart_owner=user).count()
     context = {
         'title': 'Staffs',
         'section_title': 'Staff - All',
@@ -65,7 +68,9 @@ def staff(request):
         'has_error': has_error,
         'msg': msg,
         'avatar_path': 'img/profile_pics/'+ avatar.name + '.png',
-        'month_choice': month_choice
+        'month_choice': month_choice,
+        'user_cart': user_cart,
+        'cart_count': cart_count,
     }
     return render(request, template_name, context=context)
 

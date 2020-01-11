@@ -67,13 +67,21 @@
                   {% if user_cart %}
                     <span><strong>Shipping Cart</strong></span>
                     {% for cart_item in user_cart %}
-                      <a href="" class="dropdown-item message d-flex align-items-center">
-                        <div class="content">   
-                          <strong class="d-block">{{ cart_item.bag.bag_type}} bag [{{ cart_item.pricing }} pricing]</strong>
-                          <span class="d-block">{{ cart_item.bag.roll.color }}: {{ cart_item.bag.roll.gsm }} GSM</span>
-                          <span class="d-block">{{ cart_item.bag.height }} X {{ cart_item.bag.width }} {{ cart_item.weight }} Kgs</span>
-                        </div>
-                      </a>
+                      {% if forloop.counter <= 5 %}
+                        <a href="" class="dropdown-item message d-flex align-items-center">
+                          <div class="content">   
+                            <strong class="d-block">{{ cart_item.bag.bag_type}} bag [{{ cart_item.pricing }} pricing]</strong>
+                            <span class="d-block">{{ cart_item.bag.roll.color }}: {{ cart_item.bag.roll.gsm }} GSM</span>
+                            <span class="d-block">{{ cart_item.bag.height }} X {{ cart_item.bag.width }} {{ cart_item.weight }} Kgs</span>
+                          </div>
+                        </a>
+                      {%else%}
+                        {% if forloop.counter == 6 %}
+                          <a href="{% url 'ship_bag' %}" class="dropdown-item text-center message"> 
+                            <strong>more item(s)</i></strong>
+                          </a>
+                        {%endif%}
+                      {%endif%}
                     {%endfor%}
                     <a href="{% url 'ship_bag' %}" class="dropdown-item text-center message"> 
                       <strong>ship to Party <i class="fa fa-angle-right"></i></strong>
@@ -116,8 +124,13 @@
           {% if user.is_staff %}
           <li {% if 'Staffs' in title %} class="active" {% endif %}><a href="{% url 'staffs' %}"> <i class="fa fa-users"></i>Staffs</a></li>
           {% endif %}
-          <li {% if 'Sellers' in title %} class="active" {% endif %}><a href="{% url 'sellers' %}"> <i class="icon-user"></i>Sellers</a></li>
-          <li {% if 'Parties' in title %} class="active" {% endif %}><a href="{% url 'distributors' %}"> <i class="icon-user-1"></i>Parties</a></li>
+          <li   
+            {% if 'Sellers' in title %} class="active" {% endif %} {% if 'Parties' in title %} class="active" {% endif %}><a href="#sp" aria-expanded="false" data-toggle="collapse"> <i class="fa fa-users"></i>Sellers and Parties </a>
+            <ul id="sp" class="collapse list-unstyled ">
+              <li {% if 'Sellers' in title %} class="active" {% endif %}><a href="{% url 'sellers' %}"> <i class="icon-user"></i>Sellers</a></li>
+              <li {% if 'Parties' in title %} class="active" {% endif %}><a href="{% url 'distributors' %}"> <i class="icon-user-1"></i>Parties</a></li>  
+            </ul>
+          </li>
         </ul>
         <span class="heading">Factory</span>
         <ul class="list-unstyled">
@@ -125,7 +138,12 @@
           <li {% if 'Activity' in title %} class="active" {% endif %}> <a href="{% url 'inward_log' %}"> <i class="fa fa-bars"></i>Activity Logs</a></li>
           <li {% if 'Stock' in title %} class="active" {% endif %}> <a href="{% url 'roll_stock' %}"> <i class="fa fa-cubes"></i>Stock Rolls</a></li>
           <li {% if 'Make' in title %} class="active" {% endif %}> <a href="{% url 'make_bag' %}"> <i class="fa fa-random"></i>Make Bags</a></li>
-          <li {% if 'Ship' in title %} class="active" {% endif %}> <a href="{% url 'ship_bag' %}"> <i class="fa fa-random"></i>Ship Bags</a></li>
+          <li {% if 'Ship' in title %} class="active" {% endif %}><a href="#shippments" aria-expanded="false" data-toggle="collapse"> <i class="icon-windows"></i>Shippments </a>
+            <ul id="shippments" class="collapse list-unstyled ">
+              <li {% if 'Ship' in title %} class="active" {% endif %}> <a href="{% url 'ship_bag' %}"> <i class="fa fa-truck" aria-hidden="true"></i>Ship Bags</a></li>
+              <li {% if 'Package' in title %} class="active" {% endif %}> <a href="{% url 'package_history' %}"> <i class="fa fa-book" aria-hidden="true"></i></i>Package History</a></li>
+            </ul>
+          </li>
         </ul>
       </nav>
       <!-- Sidebar Navigation end-->

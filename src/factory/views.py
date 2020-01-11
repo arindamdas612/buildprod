@@ -4,11 +4,12 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.utils.timezone import get_current_timezone
 from django.db.models import Sum, Count
+from django.http import HttpResponse
 
 from core.models import Avatar
-from .forms import RollForm, BagForm, ShipForm, ShipCartForm, PackingSlipForm
+from .forms import RollForm, BagForm, ShipCartForm, PackingSlipForm
 from .models import Waste, Roll, Bag, Ship, InventoryTransactions, ShipCart, PackingSlips
-from .utils import waste_management, ship_package
+from .utils import waste_management, ship_package,get_packing_slip
 from core.reports import get_report_dates
 
 # Create your views here.
@@ -33,13 +34,17 @@ def stock(request):
     template_name = 'stock.html'
     form = RollForm()
     month_choice = get_report_dates()
+    user_cart = ShipCart.objects.filter(cart_owner=user)
+    cart_count = ShipCart.objects.filter(cart_owner=user).count()
     context = {
         'title': 'Factory | Stock',
         'section_title': 'Stock Rolls',
         'avatar_path': 'img/profile_pics/'+ avatar.name + '.png',
         'form': form,
         'msg': msg,
-        'month_choice': month_choice
+        'month_choice': month_choice,
+        'user_cart': user_cart,
+        'cart_count': cart_count,
     }
     return render(request, template_name, context=context)
 
@@ -47,7 +52,6 @@ def stock(request):
 @login_required
 def make(request):
     make_form = BagForm()
-    ship_form = ShipForm()
 
     user = User.objects.get(username=request.user.username)
     avatar = Avatar.objects.get(user=user)
@@ -67,14 +71,17 @@ def make(request):
             print(make_form.errors)
     template_name = 'make.html'
     month_choice = get_report_dates()
+    user_cart = ShipCart.objects.filter(cart_owner=user)
+    cart_count = ShipCart.objects.filter(cart_owner=user).count()
     context = {
         'title': 'Factory | Make',
         'section_title': 'Make Bags',
         'avatar_path': 'img/profile_pics/'+ avatar.name + '.png',
         'make_form': make_form,
-        'ship_form': ship_form,
         'msg': msg,
-        'month_choice': month_choice
+        'month_choice': month_choice,
+        'user_cart': user_cart,
+        'cart_count': cart_count,
     }
     return render(request, template_name, context=context) 
 
@@ -135,8 +142,19 @@ def price_shipments(request):
 
     if request.method == 'POST':
         if form.is_valid():
-            package = form.save(user)
-            ship_package(ps_id=package.id, user=user)
+            cart_count = ShipCart.objects.filter(cart_owner=user).count()
+            if cart_count > 0:
+                package = form.save(user)
+                ship_package(ps_id=package.id, user=user)
+                
+                pdf = get_packing_slip(package.id)
+                if pdf:
+                    ps_no = 'SPC/' + (5 - (len(str(package.id)))) * '0' + str(package.id)
+                    response = HttpResponse(pdf, content_type='application/pdf')
+                    filename = "PS_%s.pdf" %(ps_no)
+                    content = "attachment; filename=%s" %(filename)
+                    response['Content-Disposition'] = content
+                    return response
             form = PackingSlipForm()
 
     basic_weight = 0
@@ -164,8 +182,62 @@ def price_shipments(request):
         'basic_weight': basic_weight,
         'color_weight': color_weight,
         'form': form,
+        'user_cart': user_cart,
+        'cart_count': cart_count,
     }
     return render(request, template_name, context=context) 
+
+
+
+@login_required
+def package_history(request):
+    packages = PackingSlips.objects.all().order_by('-create_timestamp')
+    package_list = []
+    
+    for package in packages:
+        temp_dict = {}
+        temp_dict['id'] = package.id
+        temp_dict['create_date'] = package.create_timestamp
+        temp_dict['ps_no'] = 'SPC/' + (5 - (len(str(package.id)))) * '0' + str(package.id)
+        temp_dict['party_name'] = package.party.name
+        temp_dict['package_weight'] = package.color_weight + package.basic_weight
+        temp_dict['package_value'] = '{:0,.2f}'.format(package.total_amount + package.advance_amount)
+        package_list.append(temp_dict)
+        
+    
+    paginator = Paginator(package_list, 20)
+    page = request.GET.get('page')
+    packages = paginator.get_page(page)
+    user = User.objects.get(username=request.user.username)
+    avatar = Avatar.objects.get(user=user)
+    template_name = 'packages.html'
+    month_choice = get_report_dates()
+    user_cart = ShipCart.objects.filter(cart_owner=user)
+    cart_count = ShipCart.objects.filter(cart_owner=user).count()
+    context = {
+        'title': 'Package',
+        'section_title': 'Package History',
+        'avatar_path': 'img/profile_pics/'+ avatar.name + '.png',
+        'month_choice': month_choice,
+        'user_cart': user_cart,
+        'cart_count': cart_count,
+
+        'packages': packages,
+    }
+    return render(request, template_name, context=context)
+
+@login_required
+def download_packingslip(request, package_id):
+    package = PackingSlips.objects.get(pk=package_id)
+    pdf = get_packing_slip(package.id)
+    if pdf:
+        ps_no = 'SPC/' + (5 - (len(str(package.id)))) * '0' + str(package.id)
+        response = HttpResponse(pdf, content_type='application/pdf')
+        filename = "PS_%s.pdf" %(ps_no)
+        content = "attachment; filename=%s" %(filename)
+        response['Content-Disposition'] = content
+        return response
+
 
 @login_required
 def roll_warehouse(request):
@@ -182,12 +254,16 @@ def roll_warehouse(request):
     rolls = paginator.get_page(page)
     template_name = 'warehouse-roll.html'
     month_choice = get_report_dates()
+    user_cart = ShipCart.objects.filter(cart_owner=user)
+    cart_count = ShipCart.objects.filter(cart_owner=user).count()
     context = {
         'title': 'Warehouse | Roll',
         'section_title': 'Rolls',
         'avatar_path': 'img/profile_pics/'+ avatar.name + '.png',
         'rolls': rolls,
         'month_choice': month_choice,
+        'user_cart': user_cart,
+        'cart_count': cart_count,
     }
     return render(request, template_name, context=context) 
 
@@ -197,20 +273,24 @@ def bag_warehouse(request):
     user = User.objects.get(username=request.user.username)
     avatar = Avatar.objects.get(user=user)
 
-    bag_list = Bag.objects.filter(status='STOCKED').order_by('-create_timestamp')
-    paginator = Paginator(bag_list, 20)
+    bag_list = Bag.objects.filter(status='stocked').order_by('-create_timestamp')
+    paginator = Paginator(bag_list, 10)
     page = request.GET.get('page')
     bags = paginator.get_page(page)
     
     
     template_name = 'warehouse-bag.html'
     month_choice = get_report_dates()
+    user_cart = ShipCart.objects.filter(cart_owner=user)
+    cart_count = ShipCart.objects.filter(cart_owner=user).count()
     context = {
         'title': 'Warehouse | Bag',
         'section_title': 'Bags',
         'avatar_path': 'img/profile_pics/'+ avatar.name + '.png',
         'bags': bags,
-        'month_choice': month_choice
+        'month_choice': month_choice,
+        'user_cart': user_cart,
+        'cart_count': cart_count,
     }
     return render(request, template_name, context=context) 
 
@@ -227,12 +307,16 @@ def waste_warehouse(request):
     
     month_choice = get_report_dates()
     template_name = 'warehouse-waste.html'
+    user_cart = ShipCart.objects.filter(cart_owner=user)
+    cart_count = ShipCart.objects.filter(cart_owner=user).count()
     context = {
         'title': 'Warehouse | Waste',
         'section_title': 'Wastes',
         'avatar_path': 'img/profile_pics/'+ avatar.name + '.png',
         'wastes': wastes,
-        'month_choice': month_choice
+        'month_choice': month_choice,
+        'user_cart': user_cart,
+        'cart_count': cart_count,
     }
     return render(request, template_name, context=context) 
     
@@ -250,12 +334,17 @@ def inward_log(request):
 
     month_choice = get_report_dates()
     template_name = 'log_0.html'
+    user_cart = ShipCart.objects.filter(cart_owner=user)
+    cart_count = ShipCart.objects.filter(cart_owner=user).count()
     context = {
         'title': 'Activity | Inward',
         'section_title': 'Inward Log',
         'avatar_path': 'img/profile_pics/'+ avatar.name + '.png',
         'transactions': trxns, 
-        'month_choice': month_choice
+        'month_choice': month_choice,
+        'user_cart': user_cart,
+        'cart_count': cart_count,
+
     }
     return render(request, template_name, context=context) 
 
@@ -272,12 +361,16 @@ def production_log(request):
     avatar = Avatar.objects.get(user=user)
     template_name = 'log_1.html'
     month_choice = get_report_dates()
+    user_cart = ShipCart.objects.filter(cart_owner=user)
+    cart_count = ShipCart.objects.filter(cart_owner=user).count()
     context = {
         'title': 'Activity | Production',
         'section_title': 'Production Log',
         'avatar_path': 'img/profile_pics/'+ avatar.name + '.png',
         'transactions': trxns,
-        'month_choice': month_choice
+        'month_choice': month_choice,
+        'user_cart': user_cart,
+        'cart_count': cart_count,
     }
     return render(request, template_name, context=context) 
 
@@ -294,12 +387,16 @@ def outward_log(request):
     avatar = Avatar.objects.get(user=user)
     template_name = 'log_4.html'
     month_choice  = get_report_dates()
+    user_cart = ShipCart.objects.filter(cart_owner=user)
+    cart_count = ShipCart.objects.filter(cart_owner=user).count()
     context = {
         'title': 'Activity | Outward',
         'section_title': 'Outward Log',
         'avatar_path': 'img/profile_pics/'+ avatar.name + '.png',
         'transactions': trxns,
-        'month_choice': month_choice
+        'month_choice': month_choice,
+        'user_cart': user_cart,
+        'cart_count': cart_count,
     }
     return render(request, template_name, context=context) 
 
@@ -316,11 +413,15 @@ def waste_log(request):
     avatar = Avatar.objects.get(user=user)
     template_name = 'log_2.html'
     month_choice = get_report_dates()
+    user_cart = ShipCart.objects.filter(cart_owner=user)
+    cart_count = ShipCart.objects.filter(cart_owner=user).count()
     context = {
         'title': 'Activity | Waste',
         'section_title': 'Waste Log',
         'avatar_path': 'img/profile_pics/'+ avatar.name + '.png',
         'transactions': trxns,
-        'month_choice': month_choice
+        'month_choice': month_choice,
+        'user_cart': user_cart,
+        'cart_count': cart_count,
     }
     return render(request, template_name, context=context) 

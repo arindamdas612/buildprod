@@ -22,7 +22,7 @@
                                         <div class="col-1">
                                             {{cart_item.bag.bag_type}}
                                         </div>
-                                        <div class="col-1">
+                                        <div class="col-2">
                                             {{cart_item.bag.roll.color}}
                                         </div>
                                         <div class="col-2">
@@ -34,7 +34,7 @@
                                         <div class="col-2">
                                             {{cart_item.pricing}} Priced
                                         </div>
-                                        <div class="col-2">
+                                        <div class="col-1">
                                             <a class="btn btn-danger btn-sm" href="{% url 'delete_ship_cart' cart_id=cart_item.id %}"><i class="fa fa-bullseye" aria-hidden="true"></i> Remove</a>
                                         </div>
                                     </div>

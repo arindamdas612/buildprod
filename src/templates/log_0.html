@@ -33,18 +33,21 @@
 
 
             <div class="row">
-                <div class="col-lg-12">                           
+                <div class="col-1"></div>
+                <div class="col-lg-10">                           
                     <div class="block">
                         {% if transactions %}
                             <div class="table-responsive"> 
-                                <table class="table table-striped table-hover" id="rolls">
+                                <table class="table table-striped table-hover table-responsive-sm table-responsive-md" id="rolls">
                                     <thead>
-                                        <tr>
+                                        <tr class="text-center">
                                             <th>Date</th>
-                                            <th>Product</th>
                                             <th>Seller</th>
+                                            <th>Color</th>
+                                            <th>GSM</th>
                                             <th>Width (in)</th>
                                             <th>Weight (Kg)</th>
+                                            <th>Length</th>
                                             <th>Unit(s)</th>
                                             <th>Stocked by</th>
                                         </tr>
@@ -53,13 +56,14 @@
                                         {% for transaction in transactions %}
                                             <tr>
                                                 <td>{{transaction.trxn_timestamp|date:"d.m.Y"}}</td>
-                                                <td>
-                                                    {{transaction.roll.color}} {{transaction.roll.gsm}} GSM  
-                                                    {{transaction.roll.width}}"
-                                                </td>
                                                 <td>{{transaction.roll.seller.name}}</td>
-                                                <td>{{transaction.roll.width}}</td>
-                                                <td>{{transaction.weight}}</td>
+                                                <td>
+                                                    {{transaction.roll.color}}
+                                                </td>
+                                                <td>{{transaction.roll.gsm}}</td>
+                                                <td class="text-right">{{transaction.roll.width|floatformat:2}}</td>
+                                                <td class="text-right">{{transaction.weight|floatformat:3}}</td>
+                                                <td class="text-right">{{transaction.roll.length|floatformat:2}}</td>
                                                 <td>{{transaction.unit}}</td>
                                                 <td>{{transaction.trxn_user.username}}</td>
                                             </tr>
@@ -91,6 +95,7 @@
                         {% endif %}
                     </div>
                 </div>
+                <div class="col-1"></div>
             </div>
         </div>
     </section>
