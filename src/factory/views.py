@@ -7,7 +7,7 @@ from django.db.models import Sum, Count
 from django.http import HttpResponse
 
 from core.models import Avatar
-from .forms import RollForm, BagForm, ShipCartForm, PackingSlipForm
+from .forms import RollForm, BagForm, ShipCartForm, PackingSlipForm, FlexoPrintForm, OffsetPrintForm
 from .models import Waste, Roll, Bag, Ship, InventoryTransactions, ShipCart, PackingSlips
 from .utils import waste_management, ship_package,get_packing_slip
 from core.reports import get_report_dates
@@ -67,8 +67,6 @@ def make(request):
             waste_management(bag.id, bag.roll.id, request.user, roll_weight, waste_weight)
             msg = 'Bag created and stocked into inventory!!!'
             make_form = BagForm()
-        else:
-            print(make_form.errors)
     template_name = 'make.html'
     month_choice = get_report_dates()
     user_cart = ShipCart.objects.filter(cart_owner=user)
@@ -92,6 +90,8 @@ def ship(request):
     user = User.objects.get(username=request.user.username)
     avatar = Avatar.objects.get(user=user)
     if request.method == 'POST':
+        bag = Bag.objects.get(pk=request.POST['bag_id'])
+        form = ShipCartForm(request.POST, bag=bag)
         if form.is_valid():
             cart_item = form.save(user=user)
             cart_bag = cart_item.bag
@@ -103,14 +103,16 @@ def ship(request):
     cart_count = ShipCart.objects.filter(cart_owner=user).count()
     template_name = 'ship.html'
     month_choice = get_report_dates()
+    bags = Bag.objects.filter(weight__gt=0, status='stocked')
     context = {
-        'title': 'Factory | Ship',
+        'title': 'Factory | Catalogue',
         'section_title': 'Shipping Cart',
         'avatar_path': 'img/profile_pics/'+ avatar.name + '.png',
         'month_choice': month_choice,
         'form': form,
         'user_cart': user_cart,
         'cart_count': cart_count,
+        'bags': bags
     }
     return render(request, template_name, context=context) 
 
@@ -167,6 +169,11 @@ def price_shipments(request):
     for color_item in color_items:
         color_weight+=color_item.weight
     
+    wcut_weight = 0
+    wcut_items = ShipCart.objects.filter(pricing='w-cut', cart_owner=user)
+    for wcut_item in wcut_items:
+        wcut_weight+=wcut_item.weight
+    
 
     user_cart = ShipCart.objects.filter(cart_owner=user)
     cart_count = ShipCart.objects.filter(cart_owner=user).count()
@@ -181,6 +188,7 @@ def price_shipments(request):
         'cart_count': cart_count,
         'basic_weight': basic_weight,
         'color_weight': color_weight,
+        'wcut_weight': wcut_weight,
         'form': form,
         'user_cart': user_cart,
         'cart_count': cart_count,
@@ -215,7 +223,7 @@ def package_history(request):
     user_cart = ShipCart.objects.filter(cart_owner=user)
     cart_count = ShipCart.objects.filter(cart_owner=user).count()
     context = {
-        'title': 'Package',
+        'title': 'Factory | Package',
         'section_title': 'Package History',
         'avatar_path': 'img/profile_pics/'+ avatar.name + '.png',
         'month_choice': month_choice,
@@ -240,6 +248,83 @@ def download_packingslip(request, package_id):
 
 
 @login_required
+def flexo_print(request):
+    rolls = Roll.objects.filter(unit__gt=0, print_type='Normal').order_by('color', 'width')
+    form = FlexoPrintForm(request.POST or None)
+    if request.method == 'POST':
+        roll = Roll.objects.get(pk=int(request.POST.get('roll_id')))
+        form = FlexoPrintForm(request.POST, roll=roll)
+        if form.is_valid():
+            printed_roll = form.save()
+            trxn = InventoryTransactions(
+                trxn_type = 5,
+                roll = printed_roll,
+                weight =  printed_roll.weight,
+                unit=printed_roll.unit,
+                trxn_user=request.user
+            )
+            trxn.save()
+            form = FlexoPrintForm()
+
+    user = User.objects.get(username=request.user.username)
+    avatar = Avatar.objects.get(user=user)
+    template_name = 'flexo_print.html'
+    month_choice = get_report_dates()
+    user_cart = ShipCart.objects.filter(cart_owner=user)
+    cart_count = ShipCart.objects.filter(cart_owner=user).count()
+    context = {
+        'title': 'Print | Flexo',
+        'section_title': 'Flexo Print',
+        'avatar_path': 'img/profile_pics/'+ avatar.name + '.png',
+        'month_choice': month_choice,
+        'user_cart': user_cart,
+        'cart_count': cart_count,
+
+        'rolls': rolls,
+        'form': form,
+    }
+    return render(request, template_name, context=context)
+
+
+@login_required
+def offset_print(request):
+    bags = Bag.objects.filter(weight__gt=0, roll__print_type='Normal', print_type='Normal', status='stocked').order_by('roll__color')
+    form = OffsetPrintForm(request.POST or None)
+    if request.method == 'POST':
+        bag = Bag.objects.get(pk=int(request.POST.get('bag_id')))
+        form = OffsetPrintForm(request.POST, bag=bag)
+        if form.is_valid():
+            printed_bag = form.save()
+            trxn = InventoryTransactions(
+                trxn_type = 6,
+                bag = printed_bag,
+                weight =  printed_bag.weight,
+                trxn_user=request.user
+            )
+            trxn.save()
+            form = OffsetPrintForm()
+    user = User.objects.get(username=request.user.username)
+    avatar = Avatar.objects.get(user=user)
+    template_name = 'offset_print.html'
+    month_choice = get_report_dates()
+    user_cart = ShipCart.objects.filter(cart_owner=user)
+    cart_count = ShipCart.objects.filter(cart_owner=user).count()
+    context = {
+        'title': 'Print | Offset',
+        'section_title': 'Offset Print',
+        'avatar_path': 'img/profile_pics/'+ avatar.name + '.png',
+        'month_choice': month_choice,
+        'user_cart': user_cart,
+        'cart_count': cart_count,
+
+        'bags': bags,
+        'form': form,
+    }
+    return render(request, template_name, context=context)
+
+
+
+@login_required
 def roll_warehouse(request):
     user = User.objects.get(username=request.user.username)
     avatar = Avatar.objects.get(user=user)
@@ -247,7 +332,7 @@ def roll_warehouse(request):
     #ed = datetime.date.now(tz=get_current_timezone())
     #st = ed - datetime.timedelta(days=1)
     
-    rolls_list = Roll.objects.values('color', 'gsm', 'width', 'length'). \
+    rolls_list = Roll.objects.values('color', 'gsm', 'width', 'length', 'print_type'). \
         annotate(total_units=Sum('unit')).order_by('-total_units')
     paginator = Paginator(rolls_list,10)
     page = request.GET.get('page')
@@ -273,7 +358,7 @@ def bag_warehouse(request):
     user = User.objects.get(username=request.user.username)
     avatar = Avatar.objects.get(user=user)
 
-    bag_list = Bag.objects.filter(status='stocked').order_by('-create_timestamp')
+    bag_list = Bag.objects.filter(status='stocked', weight__gt=0).order_by('-create_timestamp')
     paginator = Paginator(bag_list, 10)
     page = request.GET.get('page')
     bags = paginator.get_page(page)

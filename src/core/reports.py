@@ -56,6 +56,9 @@ def get_report_data(period):
     end_date = begin_date.replace(month=next_month, year=year)
     end_date = end_date - datetime.timedelta(milliseconds=1)
 
+    print(begin_date)
+    print(end_date)
+
     inward_qs = InventoryTransactions.objects. \
         filter(trxn_timestamp__lte=end_date,trxn_timestamp__gte=begin_date, trxn_type=0). \
         order_by('trxn_timestamp')
@@ -101,7 +104,7 @@ def get_report_data(period):
         row['sl_no'] = sl_no
         row['date'] = trxn.trxn_timestamp.strftime('%d.%m.%Y')
         row['product'] = trxn.ship.bag.roll.color + ' ' + str(trxn.ship.bag.roll.gsm) + ' GSM'
-        row['type'] = trxn.bag.bag_type
+        row['type'] = trxn.ship.bag.bag_type
         row['size'] = str(round(trxn.ship.bag.width)) + ' X ' + str(round(trxn.ship.bag.height))
         row['weight'] = trxn.weight 
         outward.append(row)

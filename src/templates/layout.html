@@ -138,9 +138,17 @@
           <li {% if 'Activity' in title %} class="active" {% endif %}> <a href="{% url 'inward_log' %}"> <i class="fa fa-bars"></i>Activity Logs</a></li>
           <li {% if 'Stock' in title %} class="active" {% endif %}> <a href="{% url 'roll_stock' %}"> <i class="fa fa-cubes"></i>Stock Rolls</a></li>
           <li {% if 'Make' in title %} class="active" {% endif %}> <a href="{% url 'make_bag' %}"> <i class="fa fa-random"></i>Make Bags</a></li>
-          <li {% if 'Ship' in title %} class="active" {% endif %}><a href="#shippments" aria-expanded="false" data-toggle="collapse"> <i class="icon-windows"></i>Shippments </a>
+          <li {% if 'Print' in title %} class="active" {% endif %}><a href="#printing" aria-expanded="false" data-toggle="collapse"> <i class="fa fa-code-fork" aria-hidden="true"></i>Print </a>
+            <ul id="printing" class="collapse list-unstyled ">
+              <li {% if 'Flexo' in title %} class="active" {% endif %}> <a href="{% url 'flexo_print' %}"> <i class="fa fa-pinterest" aria-hidden="true"></i>Flexo Printing</a></li>
+              <li {% if 'Offset' in title %} class="active" {% endif %}> <a href="{% url 'offset_print' %}"> <i class="fa fa-print" aria-hidden="true"></i></i>Offset Printing</a></li>
+              <li {% if 'Log' in title %} class="active" {% endif %}> <a href="{% url 'package_history' %}"> <i class="fa fa-exchange" aria-hidden="true"></i></i>Print Log</a></li>
+            </ul>
+          </li>
+          <li 
+          {% if 'Catalogue' in title %} class="active" {% endif %} {% if 'Package' in title %} class="active" {% endif %}><a href="#shippments" aria-expanded="false" data-toggle="collapse"> <i class="fa fa-truck"></i>Shippment </a>
             <ul id="shippments" class="collapse list-unstyled ">
-              <li {% if 'Ship' in title %} class="active" {% endif %}> <a href="{% url 'ship_bag' %}"> <i class="fa fa-truck" aria-hidden="true"></i>Ship Bags</a></li>
+              <li {% if 'Catalogue' in title %} class="active" {% endif %}> <a href="{% url 'ship_bag' %}"> <i class="icon-windows" aria-hidden="true"></i>Bag Catalogue</a></li>
               <li {% if 'Package' in title %} class="active" {% endif %}> <a href="{% url 'package_history' %}"> <i class="fa fa-book" aria-hidden="true"></i></i>Package History</a></li>
             </ul>
           </li>

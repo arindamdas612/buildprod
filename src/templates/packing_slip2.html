@@ -1,0 +1,296 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>{{ps_no}}</title>
+    <style type="text/css">
+        @page {
+            size: A4;
+            margin: 1cm;
+            padding-top: 5px;
+        }
+
+        .main-table {
+          width: 100%;
+          border-collapse: collapse;
+          padding: 3px;
+        }
+        
+    </style>
+</head>
+<body>
+  <table class="main-table">
+    <col width="5px">
+      <tr>
+        <td colspan="8" style="border-top: 2px solid black; border-right: 2px solid black; border-left: 2px solid black; text-align:center;"><h1>SPC Shree Krishna Foodtech (P) Ltd.</h1></td>
+      </tr>
+      <tr>
+        <td colspan="8" style="border-right: 2px solid black; border-left: 2px solid black; border-bottom: 1px solid black; text-align:center;"><h2>PACKING SLIP</h2></td>
+      </tr>
+      <tr>
+        <td rowspan="2" colspan="2" style="border: 1px solid black; border-left: 2px solid black; text-align:center;"><strong>PARTY NAME</strong></td>
+        <td rowspan="2" colspan="4"  style="border: 1px solid black; text-align:left;"><strong>{{package.party.name}}</strong></td>
+        <td style="text-align:left;"><strong>DATE</strong></td>
+        <td style="border-right: 2px solid black; text-align:left;"><strong>{{package.create_timestamp|date:"d.m.Y"}}</strong></td>
+
+      </tr>
+      <tr>
+        <td style="text-align:left;"><strong>PS NO</strong></td>
+        <td style="border-right: 2px solid black; text-align:left;"><strong>{{ps_no}}</strong></td>
+
+      </tr>
+      <tr>
+        <td style="width: 45px; border: 1px solid black; border-left: 2px solid black; text-align:center;"><strong>#</strong></td>
+        <td style="border: 1px solid black; text-align:center;"><strong>SIZE</strong></td>
+        <td style="border: 1px solid black; text-align:center;"><strong>GSM</strong></td>
+        <td style="border: 1px solid black; text-align:center;"><strong>COLOR</strong></td>
+        <td style="border: 1px solid black; text-align:center;"><strong>WEIGHT</strong></td>
+        <td style="border: 1px solid black; text-align:center;"><strong>PCS/BDL</strong></td>
+        <td style="width: 90px; border: 1px solid black; text-align:center;"><strong>STYLE</strong></td>
+        <td style="width: 90px; border: 1px solid black; border-right: 2px solid black; text-align:center;"><strong>REMARKS</strong></td>
+      </tr>
+      {% for item in shippments %}
+				<tr>
+					<td style="border: 1px solid black; border-left: 2px solid black; text-align:center;">{{ forloop.counter }}</td>
+					<td style="border: 1px solid black; text-align:center;">
+						{{item.bag.height|floatformat:0}} 
+						X 
+						{{item.bag.width|floatformat:0}} 
+					</td>
+					<td style="border: 1px solid black; text-align:center;">{{item.bag.roll.gsm}}</td>
+					<td style="border: 1px solid black; text-align:center;">{{item.bag.roll.color}}</td>
+          <td style="border: 1px solid black; text-align:center;">{{item.weight|floatformat:2}}</td>
+					<td style="border: 1px solid black; text-align:center;">{{item.bndl}}</td>
+					<td style="border: 1px solid black; text-align:center;">{{item.bag.bag_type}}</td>
+					<td style="width: 130px; border: 1px solid black; border-right: 2px solid black; text-align:center;">{{item.remarks}}</td>
+				</tr>
+      {% endfor %}
+      <tr>
+        <td colspan="8" style="border: 2px solid black;"></td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid black; border-left: 2px solid black; text-align:center;"><strong>1</strong></td>
+        <td colspan="4" style="border: 1px solid black; text-align:right;"><strong>BLOCK</strong></td>
+        <td style="border: 1px solid black; text-align:center;">
+            <strong>
+              {% if package.block_unit == 0 %}
+                -
+              {% else %}
+                {{package.block_unit}}
+              {% endif %}
+            </strong>
+          </td>
+        <td rowspan="2" colspan="2" style="border: 2px solid black; text-align:center;"></td>
+
+      </tr>
+      <tr>
+        <td style="border: 1px solid black; border-left: 2px solid black; text-align:center;"><strong>2</strong></td>
+        <td colspan="4" style="border: 1px solid black; text-align:right;"><strong>PRINTING</strong></td>
+        <td style="border: 1px solid black; text-align:center;">
+          <strong>
+            {% if package.print_unit == 0 %}
+              -
+            {% else %}
+              {{package.print_unit}}
+            {% endif %}
+          </strong>
+        </td>
+      </tr>
+      <tr style="border-bottom: 2px solid black;">
+        <td colspan="2" style="border-left: 2px solid black; border-top: 2px solid black; text-align:left;"><strong>TOTAL BASIC KG.</strong></td>
+        <td style="border-right: 2px solid black; border-top: 2px solid black; text-align:right;">
+          <strong>
+            {% if package.basic_weight == 0 %}
+              -
+            {% else %}
+              {{package.basic_weight|floatformat:2}}
+            {% endif %}
+          </strong>
+        </td>
+        <td style="border-top: 2px solid black; text-align:left;"><strong>TOTAL COLOR KG.</strong></td>
+        <td style="border-right: 2px solid black; border-top: 2px solid black; text-align:right;">
+          <strong>
+            {% if package.color_weight == 0 %}
+              -
+            {% else %}
+              {{package.color_weight|floatformat:2}}
+            {% endif %}
+          </strong>
+        </td>
+        <td colspan="2" style="border-top: 2px solid black; text-align:left;"><strong>TOTAL W CUT KG.</strong></td>
+        <td style="border-right: 2px solid black; border-top: 2px solid black; text-align:right;">
+          <strong>
+            {% if package.wcut_weight == 0 %}
+              -
+            {% else %}
+              {{package.wcut_weight|floatformat:2}}
+            {% endif %}
+          </strong>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="6" style="border-left: 2px solid black;"></td>
+        <td style="border-left: 2px solid black; border-bottom: 1px solid black; text-align:right;"><strong>W cut Amount</strong></td>
+        <td style="border-bottom: 1px solid black; border-right: 2px solid black; text-align:right;">
+          <strong>
+            {% if package.wcut_amount == 0 %}
+              -
+            {% else %}
+              {{wcut_amount}}
+            {% endif %}
+          </strong>
+        </td>
+      </tr>
+      <tr>
+        <td style="width: 45px; border-left: 2px solid black;"></td>
+        <td style="border-top: 2px solid black; border-left: 2px solid black; border-bottom: 1px solid black; text-align:right;"><strong>Basic Rate Per KG:-</strong></td>
+        <td style="border-top: 2px solid black; border-right: 2px solid black; border-bottom: 1px solid black; text-align:right;">
+          <strong>
+          {% if package.basic_rate == 0 %}
+            -
+          {% else %}
+            {{package.basic_rate|floatformat:2}}
+          {% endif %}
+        </strong>
+        </td>
+        <td colspan="3"></td>
+        <td style="border-left: 2px solid black; border-bottom: 1px solid black; text-align:right;"><strong>BASIC AMOUNT</strong></td>
+        <td style="border-bottom: 1px solid black; border-right: 2px solid black; text-align:right;">
+          <strong>
+            {% if package.basic_amount == 0 %}
+              -
+            {% else %}
+              {{basic_amount}}
+            {% endif %}
+          </strong>
+        </td> 
+      </tr>
+      <tr>
+        <td style="width: 45px; border-left: 2px solid black;"></td>
+        <td style="width: 200px; border-left: 2px solid black; border-bottom: 1px solid black; text-align:right;"><strong>Color Rate Per KG:-</strong></td>
+        <td style="width: 100px; border-right: 2px solid black; border-bottom: 1px solid black; text-align:right;">
+          <strong>
+            {% if package.color_rate == 0 %}
+              -
+            {% else %}
+              {{package.color_rate|floatformat:2}}
+            {% endif %}
+          </strong>
+        </td>
+        <td colspan="3"></td>
+        <td style="border-left: 2px solid black; border-bottom: 1px solid black; text-align:right;"><strong>COLOR AMOUNT</strong></td>
+        <td style="border-bottom: 1px solid black; border-right: 2px solid black; text-align:right;">
+          <strong>
+            {% if package.color_amount == 0 %}
+              -
+            {% else %}
+              {{color_amount}}
+            {% endif %}
+          </strong>
+        </td> 
+      </tr>
+      <tr>
+        <td style="width: 45px; border-left: 2px solid black;"></td>
+        <td style="width: 200px; border-left: 2px solid black; border-bottom: 1px solid black; text-align:right;"><strong>W Cut rate Per Kg:-</strong></td>
+        <td style="width: 100px; border-right: 2px solid black; border-bottom: 1px solid black; text-align:right;">
+          <strong>
+            {% if package.wcut_rate == 0 %}
+              -
+            {% else %}
+              {{package.wcut_rate|floatformat:2}}
+            {% endif %}
+          </strong>
+        </td>
+        <td colspan="3"></td>
+        <td style="border-left: 2px solid black; border-bottom: 1px solid black; text-align:right;"><strong>PRINT CHARGES</strong></td>
+        <td style="border-bottom: 1px solid black; border-right: 2px solid black; text-align:right;">
+          <strong>
+            {% if package.print_amount == 0 %}
+              -
+            {% else %}
+              {{print_amount}}
+            {% endif %}
+          </strong>
+        </td> 
+      </tr>
+      <tr>
+        <td style="width: 45px; border-left: 2px solid black;"></td>
+        <td style="width: 200px; border-left: 2px solid black; border-bottom: 1px solid black; text-align:right;"><strong>Block Charge:-</strong></td>
+        <td style="width: 100px; border-right: 2px solid black; border-bottom: 1px solid black; text-align:right;">
+          <strong>
+            {% if package.block_rate == 0 %}
+              -
+            {% else %}
+              {{package.block_rate|floatformat:2}}
+            {% endif %}
+          </strong>
+        </td>
+        <td colspan="3"></td>
+        <td style="width: 100px; border-left: 2px solid black; border-bottom: 1px solid black; text-align:right;"><strong>TOTAL BLOCK CHARGE</strong></td>
+        <td style="border-bottom: 1px solid black; border-right: 2px solid black; text-align:right;">
+          <strong>
+            {% if package.block_amount == 0 %}
+              -
+            {% else %}
+              {{block_amount}}
+            {% endif %}
+          </strong>
+        </td> 
+      </tr>
+      <tr>
+        <td style="width: 45px; border-left: 2px solid black;"></td>
+        <td style="width: 200px; border-left: 2px solid black; border-bottom: 2px solid black; text-align:right;"><strong>Printing Charge:-</strong></td>
+        <td style="width: 100px;  border-right: 2px solid black; border-bottom: 2px solid black; text-align:right;">
+          <strong>
+            {% if package.print_rate == 0 %}
+              -
+            {% else %}
+              {{package.print_rate|floatformat:2}}
+            {% endif %}
+          </strong>
+        </td>
+        <td colspan="3"></td>
+        <td style="border-left: 2px solid black; border-bottom: 1px solid black; text-align:right;"><strong>FARE</strong></td>
+        <td style="border-bottom: 1px solid black; border-right: 2px solid black; text-align:right;">
+          <strong>
+            {% if package.fare_amount == 0 %}
+              -
+            {% else %}
+              {{fare_amount}}
+            {% endif %}
+          </strong>
+        </td> 
+      </tr>
+      <tr>
+        <td colspan="6" style="width: 45px; border-left: 2px solid black;"></td>
+        <td style="border-left: 2px solid black; border-bottom: 1px solid black; text-align:right;"><strong>TOTAL</strong></td>
+        <td style="border-bottom: 1px solid black; border-right: 2px solid black; text-align:right;">
+          <strong>
+              {{total_amount}}
+          </strong>
+        </td> 
+      </tr>
+     <tr>
+        <td style="width: 45px; border-left: 2px solid black;"></td>
+        <td colspan="3" rowspan="2" style="border: 2px solid black; vertical-align:bottom; text-align:center; text-decoration:underline;"><strong><h1>Authorised Signatory</h1></strong></td>
+        <td colspan="2" rowspan="2"></td>
+        <td style="border-left: 2px solid black; border-bottom: 1px solid black; text-align:right;"><strong>ADVANCE</strong></td>
+        <td style="border-bottom: 1px solid black; border-right: 2px solid black; text-align:right;">
+          <strong>
+            {% if package.advance_amount == 0 %}
+              -
+            {% else %}
+              {{advance_amount}}
+            {% endif %}
+          </strong>
+        </td> 
+      </tr>
+      <tr style="border-bottom: 2px solid black;">
+        <td style="width: 45px; border-left: 2px solid black;"></td>
+        <td style="border-left: 2px solid black; border-bottom: 1px solid black; text-align:right;"><strong>TOTAL AMOUNT</strong></td>
+        <td style="border-bottom: 2px solid black; border-right: 2px solid black; text-align:right;"><strong><h1>{{payable}}</h1></strong></td> 
+      </tr>
+  </table>
+
+</body>
+</html>

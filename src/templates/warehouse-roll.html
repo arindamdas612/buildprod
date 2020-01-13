@@ -22,8 +22,7 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-2"></div>
-                <div class="col-8">                           
+                <div class="col-12">                           
                     <div class="block">
                         {% if rolls %}
                             <div class="container-fluid">
@@ -32,6 +31,7 @@
                                         <tr class="text-center">
                                             <th>Color</th>
                                             <th>Product</th>
+                                            <th>Print Type</th>
                                             <th>Stocked Length (m)</th>
                                             <th>Quantity</th>
                                             <th></th>
@@ -45,6 +45,7 @@
                                                     {{roll.color}} {{roll.gsm}} GSM  
                                                     {{roll.width}}"
                                                 </td>
+                                                <td>{{roll.print_type}}</td>
                                                 <td class="text-right">{{roll.length|floatformat:0}}</td>
                                                 <td class="text-right">{{roll.total_units}}</td>
                                             </tr>
@@ -77,7 +78,6 @@
                         {% endif %}
                     </div>
                 </div>
-                <div class="col-2"></div>
             </div>
         </div>
     </section>

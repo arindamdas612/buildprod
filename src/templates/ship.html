@@ -14,32 +14,22 @@
                     <div class="collapse" id="collapseExample">
                         <div class="card card-body">
                             {% if user_cart %}  
-                                {% for cart_item in user_cart %}
-                                    <div class="row">
-                                        <div class="col-2">
-                                            {{cart_item.bag.height}} X {{cart_item.bag.width}}
-                                        </div>
-                                        <div class="col-1">
-                                            {{cart_item.bag.bag_type}}
-                                        </div>
-                                        <div class="col-2">
-                                            {{cart_item.bag.roll.color}}
-                                        </div>
-                                        <div class="col-2">
-                                            {{cart_item.bag.roll.gsm}} GSM
-                                        </div>
-                                        <div class="col-2">
-                                            {{cart_item.weight}} Kg
-                                        </div>
-                                        <div class="col-2">
-                                            {{cart_item.pricing}} Priced
-                                        </div>
-                                        <div class="col-1">
-                                            <a class="btn btn-danger btn-sm" href="{% url 'delete_ship_cart' cart_id=cart_item.id %}"><i class="fa fa-bullseye" aria-hidden="true"></i> Remove</a>
-                                        </div>
-                                    </div>
-                                    <hr>
-                                {% endfor %}
+                                <table class="table table-dark table-hover table-responsive-sm table-responsive-md" id="rolls">
+                                    <tbody>
+                                        {% for cart_item in user_cart %}
+                                            <tr>
+                                                <td>{{cart_item.bag.height}} X {{cart_item.bag.width}}</td>
+                                                <td>{{cart_item.bag.bag_type}}</td>
+                                                <td>{{cart_item.bag.roll.color}}</td>
+                                                <td>{{cart_item.bag.roll.gsm}} GSM</td>
+                                                <td>{{cart_item.weight}} Kg</td>
+                                                <td>{{cart_item.pricing}} Priced</td>
+                                                <td><a class="btn btn-danger btn-sm" href="{% url 'delete_ship_cart' cart_id=cart_item.id %}"><i class="fa fa-bullseye" aria-hidden="true"></i> Remove</a></td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                <hr>
                                 <div class="row">
                                     <div class="col-6">
                                         <a href="{% url 'delete_ship_cart' cart_id=0 %}" class="btn btn-danger btn-block">Empty Cart</a>
@@ -56,53 +46,81 @@
                 </div>
                 <div class="col-lg-1"></div>
             </div>
-
-
             <div class="row">
-                <div class="col-lg-1"></div>
-                <div class="col-lg-10">                           
-                    <div class="block">
-                        <div class="block-body">
-                            {% if form.non_field_errors  %}
-                                <div id="form-error" class="alert alert-danger" role="alert">
-                                    {% for err in form.non_field_errors %}
-                                        <p class="form-error">{{ err }}</p>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                            <form method="POST" action="{% url 'ship_bag' %}">
-                                {%csrf_token%}
-                                <div class="row">
-                                    <div class="col-lg-6">
-                                        <div class="from-group">
-                                            {{form.bag}}
+                {% for bag in bags %}
+                    <div class="col-3">
+                        <div class="card">
+                            <h6 class="card-header">{{bag.roll.color}} [{{bag.height|floatformat:0}} X {{bag.width|floatformat:0}}]</h6>
+                            <div class="card-body">
+                                    <li class="list-group-item">{{bag.weight}} Kg</li>
+                                    <li class="list-group-item">{{bag.roll.gsm}} GSM</li>
+                                    <li class="list-group-item">
+                                        {% if bag.print_type == 'Normal' %}
+                                            {{bag.roll.print_type}}
+                                        {% else %}
+                                            {{bag.print_type}}  
+                                        {% endif %}
+                                    </li>
+                                <button type="button" data-toggle="modal" data-target="#add_Ship_modal_{{ bag.id }}" class="btn btn-dark btn-block">Add to Cart</button>
+                                <!-- Modal-->
+                                <div id="add_Ship_modal_{{ bag.id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" class="modal fade text-left">
+                                    <div role="document" class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header"><strong id="exampleModalLabel" class="modal-title">Available Weight: {{bag.weight}} Kg</strong>
+                                                <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true">×</span></button>
+                                            </div>
+                                            <div class="modal-body">
+
+                                                {% if form.non_field_errors  %}
+                                                    <div id="form-error" class="alert alert-danger" role="alert">
+                                                        {% for err in form.non_field_errors %}
+                                                            <p class="form-error">{{ err }}</p>
+                                                        {% endfor %}
+                                                    </div>
+                                                {% endif %}
+                                                <form method="POST" action="{% url 'ship_bag' %}">
+                                                    {%csrf_token%}
+                                                    <input type="hidden" name="bag_id" value="{{bag.id}}">
+                                                
+                                                    <div class="from-group">
+                                                        {{form.weight}}
+                                                    </div>
+
+                                                    <div class="from-group">
+                                                        {{form.bndl}}
+                                                    </div>
+                                            
+                                                    <div class="from-group">
+                                                        {{form.pricing}}
+                                                    </div>
+                                            
+                                                    <div class="from-group">
+                                                        {{form.remarks}}
+                                                    </div>
+                                                    <hr>
+                                                
+                                                    <div class="form-group">
+                                                        <button type="submit" class='btn btn-warning btn-block'>Add to Cart</button>
+                                                    </div>
+                                                        
+                                                </form>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" data-dismiss="modal" class="btn btn-secondary">Cancel</button>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="col-lg-6">
-                                        <div class="from-group">
-                                            {{form.weight}}
-                                        </div>
-                                    </div>
-                                </div>
-                                <hr>
-                                <div class="row">
-                                    <div class="col-lg-6">
-                                        <div class="from-group">
-                                            {{form.pricing}}
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6">
-                                        <div class="form-group">
-                                            <button type="submit" class='btn btn-warning btn-block'>Add to Cart</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </form>
+                                </div> 
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="col-lg-1"></div>
+                    {% if forloop.counter|divisibleby:4 %}
+                        </div>
+                        <div class="row">
+                    {%endif%}
+                {%endfor%}
             </div>
+
         </div>
     </section>
-{% endblock %}
+{% endblock %}      

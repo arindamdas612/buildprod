@@ -22,8 +22,7 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-2"></div>
-                <div class="col-lg-8">                           
+                <div class="col-lg-12">                           
                     <div class="block">
                         {% if bags %}
                             <div class="table-responsive"> 
@@ -32,6 +31,7 @@
                                         <tr class="text-center">
                                             <th>Color</th>
                                             <th>Product</th>
+                                            <th>Print Type</th>
                                             <th>Size</th>
                                             <th>Bag Type</th>
                                             <th>Weight (Kg)</th>
@@ -43,6 +43,13 @@
                                                 <td><i class="fa fa-shopping-bag" style="color:{{bag.roll.color}}"></i> | {{bag.roll.color}}</td>
                                                 <td>
                                                     {{bag.roll.color}} {{bag.roll.gsm}} GSM  
+                                                </td>
+                                                <td>
+                                                    {% if bag.print_type == 'Normal' %}
+                                                        {{bag.roll.print_type}}
+                                                    {% else %}
+                                                        {{bag.print_type}}  
+                                                    {% endif %}
                                                 </td>
                                                 <td>{{bag.height|floatformat:0}} X {{bag.width|floatformat:0}}</td>
                                             
@@ -77,7 +84,6 @@
                         {% endif %}
                     </div>
                 </div>
-                <div class="col-2"></div>
             </div>
         </div>
     </section>

@@ -1,0 +1,59 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <section class="no-padding-top">
+        <div class="container-fluid">
+            <div class="row">
+                {% for bag in bags %}
+                    <div class="col-3">
+                        <div class="card">
+                            <h6 class="card-header">{{bag.roll.color}} [{{bag.height|floatformat:0}} X {{bag.width|floatformat:0}}]</h6>
+                            <div class="card-body">
+                                    <li class="list-group-item">{{bag.weight}} Kg</li>
+                                    <li class="list-group-item">{{bag.roll.gsm}} GSM</li>
+                                <button type="button" data-toggle="modal" data-target="#print_offset_box_{{ bag.id }}" class="btn btn-secondary btn-block">Print Specifications</button>
+                                <!-- Modal-->
+                                <div id="print_offset_box_{{ bag.id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" class="modal fade text-left">
+                                    <div role="document" class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header"><strong id="exampleModalLabel" class="modal-title">Available Weight: {{bag.weight}} Kg</strong>
+                                                <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true">×</span></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                {% if form.non_field_errors  %}
+                                                    <div id="form-error" class="alert alert-danger" role="alert">
+                                                        {% for err in form.non_field_errors %}
+                                                            <p class="form-error">{{ err }}</p>
+                                                        {% endfor %}
+                                                    </div>
+                                                {% endif %}
+                                                <form action="{% url 'offset_print' %}" method="POST">
+                                                    {%csrf_token%}
+                                                    <input type="hidden" name="bag_id" value="{{bag.id}}">
+                                                
+                                                    <div class="from-group">
+                                                        {{form.weight}}
+                                                    </div>
+                                                    <hr>
+                                                
+                                                    <div class="form-group">
+                                                        <button type="submit" class='btn btn-secondary btn-block'>Print</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div> 
+                            </div>
+                        </div>
+                    </div>
+                    {% if forloop.counter|divisibleby:4 %}
+                        </div>
+                        <div class="row">
+                    {%endif%}
+                {%endfor%}
+            </div>
+
+        </div>
+    </section>
+{% endblock %}      

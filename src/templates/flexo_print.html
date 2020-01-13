@@ -1,0 +1,67 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <section class="no-padding-top">
+        <div class="container-fluid">
+            <div class="row">
+                {% for roll in rolls %}
+                    <div class="col-3">
+                        <div class="card">
+                            <h6 class="card-header">{{roll.color}} {{roll.width|floatformat:0}} in</h6>
+                            <div class="card-body">
+                                    <li class="list-group-item">{{roll.weight}} Kg</li>
+                                    <li class="list-group-item">{{roll.gsm}} GSM</li>
+                                    <li class="list-group-item">Units Available: {{roll.unit}}</li>
+                                <button type="button" data-toggle="modal" data-target="#print_flexo_box_{{ roll.id }}" class="btn btn-primary btn-block">Print Specifications</button>
+                                <!-- Modal-->
+                                <div id="print_flexo_box_{{ roll.id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" class="modal fade text-left">
+                                    <div role="document" class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header"><strong id="exampleModalLabel" class="modal-title">Available Weight: {{roll.weight}} Kg</strong>
+                                                <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true">×</span></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                {% if form.non_field_errors  %}
+                                                    <div id="form-error" class="alert alert-danger" role="alert">
+                                                        {% for err in form.non_field_errors %}
+                                                            <p class="form-error">{{ err }}</p>
+                                                        {% endfor %}
+                                                    </div>
+                                                {% endif %}
+                                                <form action="{% url 'flexo_print' %}" method="POST">
+                                                    {%csrf_token%}
+                                                    <input type="hidden" name="roll_id" value="{{roll.id}}">
+                                                
+                                                    <div class="from-group">
+                                                        {{form.weight}}
+                                                    </div>
+                                            
+                                                    <div class="from-group">
+                                                        {{form.unit}}
+                                                    </div>
+                                                    <hr>
+                                                
+                                                    <div class="form-group">
+                                                        <button type="submit" class='btn btn-primary btn-block'>Print</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" data-dismiss="modal" class="btn btn-secondary">Cancel</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div> 
+                            </div>
+                        </div>
+                    </div>
+                    {% if forloop.counter|divisibleby:4 %}
+                        </div>
+                        <div class="row">
+                    {%endif%}
+                {%endfor%}
+            </div>
+
+        </div>
+    </section>
+{% endblock %}      

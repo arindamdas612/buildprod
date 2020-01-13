@@ -4,8 +4,7 @@
     <section class="no-padding-top">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-3"></div>
-                <div class="col-3">
+                <div class="col-4">
                     <div class="card" style="width: 20rem;">
                         <div class="card-body">
                             <h5 class="card-title">Basic Weight</h5>
@@ -13,7 +12,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-3">
+                <div class="col-4">
                     <div class="card" style="width: 20rem;">
                         <div class="card-body">
                             <h5 class="card-title">Colour Weight</h5>
@@ -21,7 +20,14 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-3"></div>
+                <div class="col-4">
+                    <div class="card" style="width: 20rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">W-Cut Weight</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">{{wcut_weight}} Kgs</h6>
+                        </div>
+                    </div>
+                </div>
             </div>
             
         </div>
@@ -29,8 +35,7 @@
             {% csrf_token %}
             <div class="block">
                 <div class="row">
-                    <div class="col-1"></div>
-                    <div class="col-4">
+                    <div class="col-2">
                         {{form.party}}
                     </div>
                     <div class="col-3">
@@ -39,20 +44,38 @@
                     <div class="col-3">
                         {{form.color_rate}}
                     </div>
+                    <div class="col-3">
+                        {{form.wcut_rate}}
+                    </div>
                     <div class="col-1"></div>
                 </div>
             </div>
             <div class="block">
                 <div class="row">
-                    <div class="col-4">
-                        {{form.print_amount}}
+                    <div class="col-3">
+                        {{form.block_unit}}
                     </div>
+                    <div class="col-3">
+                        {{form.block_rate}}
+                    </div>
+                    <div class="col-3">
+                        {{form.print_unit}}
+                    </div>
+                    <div class="col-3">
+                        {{form.print_rate}}
+                    </div>
+                </div>
+            </div>
+            <div class="block">
+                <div class="row">
+                    <div class="col-2"></div>
                     <div class="col-4">
                         {{form.fare_amount}}
                     </div>
                     <div class="col-4">
                         {{form.advance_amount}}
                     </div>
+                    <div class="col-2"></div>
                 </div>
             </div>
             <div class="block">
