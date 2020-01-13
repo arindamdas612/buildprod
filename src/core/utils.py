@@ -234,7 +234,10 @@ def get_chart3_data():
 
         if sales:
             for trxn in sales:
-                type_3_data.append(round(trxn['amount']))
+                try: 
+                    type_3_data.append(round(trxn['amount']))
+                except:
+                    type_3_data.append(0)
         else:
             type_3_data.append(0)
     

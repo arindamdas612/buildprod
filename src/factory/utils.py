@@ -96,7 +96,7 @@ def ship_package(ps_id, user):
 
     package.total_amount = package.basic_amount + package.color_amount + \
                             package.wcut_amount + package.block_amount + \
-                            package.print_amount + package.fare_amount - \
+                            package.print_amount + package.fare_amount
     package.save()
     return True
 
