@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.models import User
 
 from seller.models import Seller
 from django.contrib.auth.models import User
@@ -7,13 +8,16 @@ from distributor.models import Distributor
 
 # Create your models here.
 
+def default_user():
+    return User.objects.get(pk=1)
+
 
 class Roll(models.Model):
     class PrintType(models.TextChoices):
         NORMAL = 'Normal', _('Normal')
         FLEXO = 'Flexo', _('Flexo')
 
-    seller = models.ForeignKey(Seller, on_delete=models.CASCADE, null=True)
+    seller = models.ForeignKey(Seller, on_delete=models.SET_NULL, null=True, blank=True)
     gsm = models.IntegerField()
     color = models.CharField(max_length=50)
     print_type = models.CharField(max_length=10, choices=PrintType.choices, default=PrintType.NORMAL)
@@ -47,7 +51,7 @@ class Bag(models.Model):
         NORMAL = 'Normal', _('Normal')
         OFFSET = 'Offset', _('Offset')
 
-    roll = models.ForeignKey(Roll, on_delete=models.CASCADE)
+    roll = models.ForeignKey(Roll, on_delete=models.CASCADE, null=True)
     bag_type = models.CharField(max_length=10, choices=BagType.choices, default=BagType.D_TYPE)
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.STOCKED)
     print_type = models.CharField(max_length=10, choices=PrintType.choices, default=PrintType.NORMAL)
@@ -79,14 +83,14 @@ class ShipCart(models.Model):
     bndl = models.FloatField(null=True)
     pricing = models.CharField(max_length=10, choices=Pricing.choices, default=Pricing.BASIC)
     remarks = models.CharField(max_length=30, default='')
-    cart_owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    cart_owner = models.ForeignKey(User, on_delete=models.SET_DEFAULT, default=default_user)
     create_timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.bag}"
 
 class PackingSlips(models.Model):
-    party = models.ForeignKey(Distributor, on_delete=models.CASCADE)
+    party = models.ForeignKey(Distributor, on_delete=models.SET_NULL, null=True, blank=True)
     
     basic_rate = models.FloatField(null=True)
     color_rate = models.FloatField(null=True)
@@ -114,7 +118,7 @@ class PackingSlips(models.Model):
     
     total_amount = models.FloatField(null=True)
 
-    prepared_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    prepared_by = models.ForeignKey(User, on_delete=models.SET_DEFAULT, default=default_user)
     create_timestamp = models.DateTimeField(auto_now_add=True)
 
 
@@ -141,7 +145,7 @@ class InventoryTransactions(models.Model):
     waste = models.ForeignKey(Waste, on_delete=models.CASCADE, null=True)
     weight = models.FloatField()
     unit = models.IntegerField(null=True)
-    trxn_user = models.ForeignKey(User, on_delete=models.CASCADE)
+    trxn_user = models.ForeignKey(User, on_delete=models.SET_DEFAULT, default=default_user)
     trxn_timestamp = models.DateTimeField(auto_now_add=True)
     
 

@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import stock, make, ship, delete_ship_cart, price_shipments, package_history, download_packingslip
-from .views import flexo_print, offset_print
+from .views import flexo_print, offset_print, flexo_log, offset_log
 from .views import roll_warehouse, bag_warehouse, waste_warehouse
 from .views import inward_log, production_log, outward_log, waste_log
 
@@ -15,6 +15,8 @@ urlpatterns = [
     path('package/download/<int:package_id>', download_packingslip, name='download_packingslip'),
     path('print/flexo', flexo_print, name='flexo_print'),
     path('print/offset', offset_print, name='offset_print'),
+    path('print/flexo/log', flexo_log, name='flexo_log'),
+    path('print/offset/log', offset_log, name='offset_log'),
     path('warehouse-rolls/', roll_warehouse, name='roll_activites'),
     path('warehoue-bags/', bag_warehouse, name='bag_activites'),
     path('warehouse-wastes/', waste_warehouse, name='waste_activites'),

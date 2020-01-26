@@ -140,9 +140,9 @@
           <li {% if 'Make' in title %} class="active" {% endif %}> <a href="{% url 'make_bag' %}"> <i class="fa fa-random"></i>Make Bags</a></li>
           <li {% if 'Print' in title %} class="active" {% endif %}><a href="#printing" aria-expanded="false" data-toggle="collapse"> <i class="fa fa-code-fork" aria-hidden="true"></i>Print </a>
             <ul id="printing" class="collapse list-unstyled ">
-              <li {% if 'Flexo' in title %} class="active" {% endif %}> <a href="{% url 'flexo_print' %}"> <i class="fa fa-pinterest" aria-hidden="true"></i>Flexo Printing</a></li>
-              <li {% if 'Offset' in title %} class="active" {% endif %}> <a href="{% url 'offset_print' %}"> <i class="fa fa-print" aria-hidden="true"></i></i>Offset Printing</a></li>
-              <li {% if 'Log' in title %} class="active" {% endif %}> <a href="{% url 'package_history' %}"> <i class="fa fa-exchange" aria-hidden="true"></i></i>Print Log</a></li>
+              <li {% if 'Flexo Printing' in title %} class="active" {% endif %}> <a href="{% url 'flexo_print' %}"> <i class="fa fa-pinterest" aria-hidden="true"></i>Flexo Printing</a></li>
+              <li {% if 'Offset Printng' in title %} class="active" {% endif %}> <a href="{% url 'offset_print' %}"> <i class="fa fa-print" aria-hidden="true"></i></i>Offset Printing</a></li>
+              <li {% if 'Log' in title %} class="active" {% endif %}> <a href="{% url 'flexo_log' %}"> <i class="fa fa-exchange" aria-hidden="true"></i></i>Print Log</a></li>
             </ul>
           </li>
           <li 

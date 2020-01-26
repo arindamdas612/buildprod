@@ -57,9 +57,10 @@ def make(request):
     avatar = Avatar.objects.get(user=user)
     msg = ''
     if request.method == 'POST':
-        roll_weight = request.POST.get('roll_weight')
-        waste_weight = request.POST.get('waste_weight')
-        make_form = BagForm(request.POST, roll_weight=roll_weight, waste_weight=waste_weight)
+        roll_weight = float(request.POST.get('roll_weight'))
+        waste_weight = float(request.POST.get('waste_weight'))
+        roll = Roll.objects.get(pk=request.POST.get('roll_id'))
+        make_form = BagForm(request.POST, roll_weight=roll_weight, waste_weight=waste_weight, roll=roll)
         if make_form.is_valid():
             bag = make_form.save()
             bag.status = 'stocked'
@@ -67,6 +68,9 @@ def make(request):
             waste_management(bag.id, bag.roll.id, request.user, roll_weight, waste_weight)
             msg = 'Bag created and stocked into inventory!!!'
             make_form = BagForm()
+        else:
+            print(make_form.errors)
+    rolls = Roll.objects.filter(unit__gt = 0, weight__gt=0).order_by('color', 'gsm', 'width', 'weight')
     template_name = 'make.html'
     month_choice = get_report_dates()
     user_cart = ShipCart.objects.filter(cart_owner=user)
@@ -80,6 +84,7 @@ def make(request):
         'month_choice': month_choice,
         'user_cart': user_cart,
         'cart_count': cart_count,
+        'rolls': rolls,
     }
     return render(request, template_name, context=context) 
 
@@ -321,6 +326,62 @@ def offset_print(request):
         'form': form,
     }
     return render(request, template_name, context=context)
+
+
+@login_required
+def flexo_log(request):
+
+    trxns_list = InventoryTransactions.objects.filter(trxn_type=5).order_by('-trxn_timestamp')
+    paginator = Paginator(trxns_list, 10)
+    page = request.GET.get('page')
+    trxns = paginator.get_page(page)
+
+    user = User.objects.get(username=request.user.username)
+    avatar = Avatar.objects.get(user=user)
+
+    month_choice = get_report_dates()
+    template_name = 'log_5.html'
+    user_cart = ShipCart.objects.filter(cart_owner=user)
+    cart_count = ShipCart.objects.filter(cart_owner=user).count()
+    context = {
+        'title': 'Print Log | Flexo',
+        'section_title': 'Flexo Print Log',
+        'avatar_path': 'img/profile_pics/'+ avatar.name + '.png',
+        'transactions': trxns, 
+        'month_choice': month_choice,
+        'user_cart': user_cart,
+        'cart_count': cart_count,
+
+    }
+    return render(request, template_name, context=context) 
+
+
+@login_required
+def offset_log(request):
+
+    trxns_list = InventoryTransactions.objects.filter(trxn_type=6).order_by('-trxn_timestamp')
+    paginator = Paginator(trxns_list, 10)
+    page = request.GET.get('page')
+    trxns = paginator.get_page(page)
+
+    user = User.objects.get(username=request.user.username)
+    avatar = Avatar.objects.get(user=user)
+
+    month_choice = get_report_dates()
+    template_name = 'log_6.html'
+    user_cart = ShipCart.objects.filter(cart_owner=user)
+    cart_count = ShipCart.objects.filter(cart_owner=user).count()
+    context = {
+        'title': 'Print Log | Offset',
+        'section_title': 'Offset Print Log',
+        'avatar_path': 'img/profile_pics/'+ avatar.name + '.png',
+        'transactions': trxns, 
+        'month_choice': month_choice,
+        'user_cart': user_cart,
+        'cart_count': cart_count,
+
+    }
+    return render(request, template_name, context=context) 
 
 
 
